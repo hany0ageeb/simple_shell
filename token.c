@@ -2,6 +2,7 @@
 #include "string.h"
 #include <stdlib.h>
 #include <errno.h>
+
 struct token *create_token(const char *lexeme, size_t line, enum token_type type)
 {
     struct token *token = NULL;
@@ -58,6 +59,8 @@ void free_token_node(struct token_node **pnode)
         {
             free_token(&(*pnode)->token);
         }
+	free(*pnode);
+	*pnode= NULL;
     }
     errno = 0;
 }

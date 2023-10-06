@@ -3,8 +3,7 @@
 #include <stdlib.h>
 static void test_str_len()
 {
-    char *empt_str = "", *null_str = NULL, normal_str = "test";
-    char *tmp;
+    char *empt_str = "", *null_str = NULL, *normal_str = "test";
     size_t len;
 
     printf("==>str_len function tests\n");
@@ -21,18 +20,16 @@ static void test_str_len()
 }
 static void test_copy_str()
 {
-    char *empt_str = "", *null_str = NULL, normal_str = "test";
+    char *empt_str = "", *null_str = NULL, *normal_str = "test";
     char *tmp;
-    size_t len;
 
     printf("==>copy_str function tests\n");
-    printf("=======string.c tests ends====\n");
     printf("===>use case: Empty string\n");
     tmp = copy_str(empt_str);
     printf("original len: %lu\tcopy len: %lu\n", str_len(empt_str), str_len(tmp));
-    printf("original string: %s\tcop string: %s\n");
+    printf("original string: %s\tcop string: %s\n", empt_str, tmp);
     if (tmp != NULL)
-    free(tmp);
+	    free(tmp);
     tmp = NULL;
     printf("===>use case: NULL string\n");
     tmp = copy_str(null_str);
@@ -55,6 +52,7 @@ static void test_copy_str()
         tmp = NULL;
     }
     printf("==>copy_str function tests end.\n");
+    printf("================================================\n");
 }
 static void test_sub_str()
 {
@@ -72,13 +70,58 @@ static void test_sub_str()
     }
     printf("===>use case: li = 1, hi = 0, string = %s\n", str);
     tmp = sub_str("test", 1, 0);
-    printf("Expected [%s]\tGot[%s]\n", NULL, tmp);
+    printf("Expected [NULL]\tGot[%s]\n", tmp);
+    if (tmp != NULL)
+    {
+	    free(tmp);
+	    tmp = NULL;
+    }
     printf("===>use case: li = 0, hi = 1, string = %s\n", str);
+    tmp = sub_str(str, 0, 1);
+    printf("Expected [%s] Got [%s]\n", "te", tmp);
+    if (tmp != NULL)
+    {
+	    free(tmp);
+	    tmp = NULL;
+    }
     printf("==>sub_str function tests end\n");
+    printf("=======================================\n");
 }
 static void test_concat_str()
 {
+	char *empty_str = "", *null_str = NULL, *normal_str1 = "hello ", *normal_str2 = "world";
+	char *str;
 
+	printf("==>concat_str function tests\n");
+	printf("===>should return null if str1 is null and str2 is null\n");
+	str = concat_str(null_str, null_str);
+	if (str == NULL)
+	{
+		printf("Expected [NULL] GOT [NULL]\n");
+	}
+	else
+	{
+		printf("Failed: Expected [NULL] Got [%s]\n", str);
+		free(str);
+		str = NULL;
+	}
+	printf("===>should return empty string if both str1 and str2 are empty\n");
+	str = concat_str(empty_str, empty_str);
+	printf("Expected [%s] Got[%s]\n", "", str);
+	if (str != NULL)
+	{
+		free(str);
+		str = NULL;
+	}
+	printf("===>str1=%s, str2=%s should return hello world\n", normal_str1, normal_str2);
+	str = concat_str(normal_str1, normal_str2);
+	printf("Expected [%s] Got [%s]\n", "hello world", str);
+	if (str != NULL)
+	{
+		free(str);
+		str = NULL;
+	}
+	printf("==>concat_str tests end\n");
 }
 int main()
 {

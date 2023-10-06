@@ -3,6 +3,7 @@
 #include "bool.h"
 #include "string.h"
 #include <stdlib.h>
+
 inline static char advance(const char *src, size_t *pcurrent)
 {
     return (src[(*pcurrent)++]);
@@ -11,7 +12,7 @@ inline static enum boolean is_alpha_numeric(const char c)
 {
     if (IS_DIGIT(c))
     return (TRUE);
-    if (c != ';' && c != '&' && c != '|' && c != '>' && c != '<')
+    if (c != ';' && c != '&' && c != '|' && c != '>' && c != '<' && c!= '\n' && c != ' ' && c != '\t' && c != '\r')
     return (TRUE);
     return (FALSE);
 }
@@ -20,11 +21,11 @@ inline static enum boolean is_number(const char *str)
     size_t i;
 
     if (IS_NULL_OR_EMPTY(str))
-    return (FALSE);
+	    return (FALSE);
     for (i = 0; str[i] != '\0'; ++i)
     {
         if (!IS_DIGIT(str[i]))
-        return (FALSE);
+		return (FALSE);
     }
     return (TRUE);
 }
@@ -35,8 +36,8 @@ inline static enum boolean is_word(const char *str)
     return (FALSE);
     for (i = 0; str[i] != '\0'; ++i)
     {
-        if (IS_DIGIT(str[i]))
-        return (FALSE);
+        if (!is_alpha_numeric(str[i]))
+		return (FALSE);
     }
     return (TRUE);
 }
@@ -109,18 +110,19 @@ struct token_list *scan_tokens(const char *src)
             break;
             default:
             while (is_alpha_numeric(src[current]) && src[current] != '\0' && src[current] != '\n')
-            advance(src, &current);
+		    advance(src, &current);
             tmp = sub_str(src, start, current - 1);
             if (tmp != NULL)
             {
-                if (is_word(tmp))
-                add_token(&lst, tmp, line, WORD);
-                else if (is_number(tmp))
-                add_token(&lst, tmp, line, NUMBER);
+                if (is_number(tmp))
+			add_token(&lst, tmp, line, NUMBER);
+                else if (is_word(tmp))
+			add_token(&lst, tmp, line, WORD);
                 free(tmp);
             }
             break;
         }
+	start = current;
     }
     return (lst);
 }

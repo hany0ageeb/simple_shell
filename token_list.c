@@ -64,6 +64,7 @@ void free_token_list(struct token_list **lst)
                 else
                     (*lst)->head = NULL;
             }
+	    free(*lst);
             *lst = NULL;
         }
     }

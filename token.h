@@ -13,17 +13,17 @@
 */
 enum token_type
 {
-    SEMI_COLON,
-    PIPE,
-    PIPE_PIPE,
-    AMPERSAND,
-    AMP_AMP,
-    NEW_LINE,
-    WORD,
-    NUMBER,
-    GREATER_THAN,
-    LESS_THAN,
-    GREATER_GREATER
+    SEMI_COLON = 1,
+    PIPE = 2,
+    PIPE_PIPE = 3,
+    AMPERSAND = 4,
+    AMP_AMP = 5,
+    NEW_LINE = 6,
+    WORD = 7,
+    NUMBER = 8,
+    GREATER_THAN = 9,
+    LESS_THAN = 10,
+    GREATER_GREATER = 11
 };
 /**
  * struct token - token
