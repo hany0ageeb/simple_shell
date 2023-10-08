@@ -8,3 +8,4 @@ int _fgetc(int fdin);
 int _fprintf(int fdout, const char *format, ...);
 int _printf(const char *format, ...);
 #endif
+
