@@ -21,29 +21,39 @@ static void print_token_list(struct token_list *lst)
 }
 int main(void)
 {
-	const char *src = "ls -la tests\n";
+	const char *src = "ls -la test";
 	const char *src2 = "exit 98";
-	struct token_list *lst = scan_tokens(src);
+	const char *src3 = "ls|;";
+	const char *src4 = "ls&&ls";
+	const char *src5 = "ls&&;";
+	struct token_list *lst = NULL;
 
-	if (lst != NULL)
+	if (scan_tokens(src, &lst, "/bin/sh"))
 	{
 		print_token_list(lst);
-		free_token_list(&lst);
 	}
-	else
-	{
-		printf("Error: Invalid Token List which is null\n");
-	}
-	lst = scan_tokens(src2);
-	if (lst != NULL)
+	printf("===============================================\n");
+	if (scan_tokens(src2, &lst, "/bin/sh"))
 	{
 		print_token_list(lst);
-		free_token_list(&lst);
 	}
-	else
+	printf("===============================================\n");
+	if (scan_tokens(src3, &lst, "/bin/sh"))
 	{
-		printf("Error: Invalid NULL token list object\n");
+		print_token_list(lst);
 	}
+	printf("==================================================\n");
+	if (scan_tokens(src4, &lst, "/bin/sh"))
+	{
+		print_token_list(lst);
+	}
+	printf("===================================================\n");
+	if (scan_tokens(src5, &lst, "/bin/sh"))
+	{
+		print_token_list(lst);
+	}
+	printf("=========================================================\n");
+	free_token_list(&lst);
 	exit(EXIT_SUCCESS);
 }
 

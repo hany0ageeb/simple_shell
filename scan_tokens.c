@@ -1,128 +1,183 @@
 #include "shell.h"
-#include "token.h"
-#include "bool.h"
 #include "string.h"
+#include "token.h"
+#include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 
-inline static char advance(const char *src, size_t *pcurrent)
+/**
+ * report_error - report syntax errors
+ * @argv0: program name as passed to argv of main function
+ * @pre_token: previous token
+ * @lexeme: current lexeme
+ * @line: line number
+ * @c: charachter
+ * @next_char: next charachter
+ * Return: void
+ */
+void report_error(const char *argv0, token_t *pre_token,
+		const char *lexeme, size_t line, const char c, const char next_char)
 {
-    return (src[(*pcurrent)++]);
-}
-inline static enum boolean is_alpha_numeric(const char c)
-{
-    if (IS_DIGIT(c))
-    return (TRUE);
-    if (c != ';' && c != '&' && c != '|' && c != '>' && c != '<' && c!= '\n' && c != ' ' && c != '\t' && c != '\r')
-    return (TRUE);
-    return (FALSE);
-}
-inline static enum boolean is_number(const char *str)
-{
-    size_t i;
+	char *tmp = NULL;
+	enum token_type type;
 
-    if (IS_NULL_OR_EMPTY(str))
-	    return (FALSE);
-    for (i = 0; str[i] != '\0'; ++i)
-    {
-        if (!IS_DIGIT(str[i]))
+	if (pre_token == NULL)
+	{
+		if (next_char == '|' && c == '|')
+			tmp = copy_str("||");
+		else if (next_char == ';' && c == ';')
+			tmp = copy_str(";;");
+		else if (next_char == '>' && c == '>')
+			tmp = copy_str(">>");
+		else if (next_char == '&' && c == '&')
+			tmp = copy_str("&&");
+		printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line,
+				tmp != NULL ? tmp : lexeme);
+	}
+	else
+	{
+		if (c == '\n')
+		{
+			printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line,
+					pre_token->lexeme);
+		}
+		else
+		{
+			type = pre_token->type;
+			if ((type == PIPE && c == '|') || (type == AMPERSAND && c == '&') ||
+					(type == GREATER_THAN && c == '>') ||
+					(type == LESS_THAN && c == '<') ||
+					(type == SEMI_COLON && c == ';'))
+			{
+				tmp = concat_str(pre_token->lexeme, lexeme);
+				printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line, tmp);
+			}
+			else
+				printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line, lexeme);
+		}
+	}
+	if (tmp != NULL)
+		free(tmp);
+}
+/**
+ * is_valid_token - check if the current token is valid syntactically
+ * @pre_token: previous token
+ * @c: current char
+ * Return: TRUE or FALSE
+ */
+bool_t is_valid_token(const token_t *pre_token, const char c)
+{
+	enum token_type type;
+
+	if (c == ';')
+		type = SEMI_COLON;
+	else if (c == '|')
+		type = PIPE;
+	else if (c == '&')
+		type = AMPERSAND;
+	else if (c == '>')
+		type = GREATER_THAN;
+	else if (c == '<')
+		type = LESS_THAN;
+	else if (c == '\n')
+		type = NEW_LINE;
+	else if (c == '\t' || c == '\r' || c == ' ' || '#')
+		return (TRUE);
+	else if (is_alpha_numeric(c))
+		return (TRUE);
+	if ((pre_token == NULL ||
+				pre_token->type == NEW_LINE || pre_token->type == SEMI_COLON)
+			&& (type != WORD && type != NUMBER && type != NEW_LINE))
 		return (FALSE);
-    }
-    return (TRUE);
-}
-inline static enum boolean is_word(const char *str)
-{
-    size_t i;
-    if (IS_NULL_OR_EMPTY(str))
-    return (FALSE);
-    for (i = 0; str[i] != '\0'; ++i)
-    {
-        if (!is_alpha_numeric(str[i]))
+	if (pre_token != NULL && (pre_token->type != WORD &&
+				pre_token->type != NUMBER && pre_token->type != NEW_LINE) &&
+			type != WORD && type != NUMBER && type != NEW_LINE)
 		return (FALSE);
-    }
-    return (TRUE);
+	return (TRUE);
 }
-static enum boolean match(char expected, const char *src, size_t *pcurrent)
+/**
+ * add_token - add token to a list of tokens
+ * @lst: list of tokens
+ * @lexeme: lexeme
+ * @line: line number
+ * @type: token type
+ * Return: the newly added token
+ */
+token_t *add_token(token_list_t **lst, const char *lexeme,
+		size_t line, token_type_t type)
 {
-    if (src[*pcurrent] == '\0')
-    return (FALSE);
-    if (src[*pcurrent] != expected)
-    return (FALSE);
-    (*pcurrent)++;
-    return (TRUE);
-}
-static void add_token(struct token_list **lst, const char *lexeme, size_t line, enum token_type type)
-{
-    struct token *token = NULL;
+	struct token *token = NULL;
 
-    if (*lst == NULL)
-        *lst = create_token_list();
-    token = create_token(lexeme, line, type);
-    if (token != NULL)
-        add_token_to_list(*lst, token);
+	if (*lst == NULL)
+		*lst = create_token_list();
+	token = create_token(lexeme, line, type);
+	if (token != NULL)
+		add_token_to_list(*lst, token);
+	return (token);
 }
-struct token_list *scan_tokens(const char *src)
+/**
+ * match - match expected with next char in src
+ * @expected: expected char in src
+ * @src: source code
+ * @pcurrent: current char
+ * Return: TRUE if expected equals src[current + 1] otherwise FALSE
+ */
+bool_t match(char expected, const char *src, size_t *pcurrent)
 {
-    size_t start = 0, current = 0, line = 1;
-    char c;
-    struct token_list *lst = NULL;
-    char *tmp;
-
-    while (src[current] != '\0')
-    {
-        c = advance(src, &current);
-        switch (c)
-        {
-            case '\t':
-            case ' ':
-            case '\r':
-            break;
-            case ';':
-            add_token(&lst, ";", line, SEMI_COLON);
-            break;
-            case '|':
-            if (match('|', src, &current))
-            add_token(&lst, "||", line, PIPE_PIPE);
-            else
-            add_token(&lst, "|", line, PIPE);
-            break;
-            case '&':
-            if (match('&', src, &current))
-            add_token(&lst, "&&", line, AMP_AMP);
-            else
-            add_token(&lst, "&", line, AMPERSAND);
-            break;
-            case '>':
-            if (match('>', src, &current))
-            add_token(&lst, ">>", line, GREATER_GREATER);
-            else
-            add_token(&lst, ">", line, GREATER_THAN);
-            break;
-            case '<':
-            add_token(&lst, "<", line, LESS_THAN);
-            break;
-            case '\n':
-            add_token(&lst, "\n", line, NEW_LINE);
-            line++;
-            break;
-            case '#':
-            while (src[current] != '\0' && src[current] != '\n')
-            advance(src, &current);
-            break;
-            default:
-            while (is_alpha_numeric(src[current]) && src[current] != '\0' && src[current] != '\n')
-		    advance(src, &current);
-            tmp = sub_str(src, start, current - 1);
-            if (tmp != NULL)
-            {
-                if (is_number(tmp))
-			add_token(&lst, tmp, line, NUMBER);
-                else if (is_word(tmp))
-			add_token(&lst, tmp, line, WORD);
-                free(tmp);
-            }
-            break;
-        }
-	start = current;
-    }
-    return (lst);
+	if (src[*pcurrent] == '\0')
+		return (FALSE);
+	if (src[*pcurrent] != expected)
+		return (FALSE);
+	(*pcurrent)++;
+	return (TRUE);
 }
+/**
+ * scan_tokens - scan tokens
+ * @src: source code
+ * @lst: a list of tokens
+ * @argv0: argv[0] passed to main function.
+ * Return: TRUE if no syntax errors otherwise FALSE
+ */
+bool_t scan_tokens(const char *src, token_list_t **lst,
+		const char *argv0)
+{
+	size_t start = 0, current = 0, line = 1, len;
+	char c;
+	struct token *pre_token = NULL;
+
+	if (lst == NULL)
+	{
+		errno = EINVAL;
+		return (FALSE);
+	}
+	len = str_len(src);
+	if (*lst != NULL)
+		free_token_list(lst);
+	while (current < len && src[current] != '\0')
+	{
+		c = src[current];
+		current++;
+		if (!is_valid_token(pre_token, c))
+		{
+			report_error(argv0, pre_token, "|", line, c, src[current + 1]);
+			return (FALSE);
+		}
+		if (c == '\t' || c == '\r' || c == ' ')
+			;
+		else if (c == '\n' || c == '|' || c == ';'
+				|| c == '&' || c == '>' || c == '<')
+			consume_token(src, c, &pre_token, lst, &current, &line);
+		else if (c == '#')
+			consume_comment(src, c, &current, &line);
+		else if (is_alpha_numeric(c))
+			consume_word_token(src, c, &current, lst, line, start, &pre_token);
+		else
+		{
+			printf("%s: %lu Syntax error: \"%c\" unexpected\n", argv0, line, c);
+			return (FALSE);
+		}
+		start = current;
+	}
+	return (TRUE);
+}
+

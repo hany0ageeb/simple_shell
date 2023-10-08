@@ -16,6 +16,16 @@ struct token *create_token(const char *lexeme, size_t line, enum token_type type
     }
     return (token);
 }
+struct token *copy_token(const struct token *src)
+{
+	struct token *cpy = NULL;
+
+	if (src != NULL)
+	{
+		cpy = create_token(src->lexeme, src->line, src->type);
+	}
+	return (cpy);
+}
 void free_token(struct token **token)
 {
     if (token == NULL)

@@ -66,6 +66,6 @@ struct token_node *create_token_node(struct token *token);
 void free_token_node(struct token_node **node);
 struct token_list *create_token_list(void);
 void add_token_to_list(struct token_list *lst, struct token *token);
-void free_token_list(void);
+void free_token_list(struct token_list **lst);
 #endif
 
