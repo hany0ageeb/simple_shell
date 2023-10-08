@@ -9,4 +9,5 @@ size_t str_len(const char *str);
 char *copy_str(const char *str);
 char *sub_str(const char *str, size_t lo, size_t hi);
 char *concat_str(const char *str1, const char *str2);
+int str_cmp(const char *str1, const char *str2);
 #endif
