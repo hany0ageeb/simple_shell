@@ -26,6 +26,7 @@ int main(void)
 	const char *src3 = "ls|;";
 	const char *src4 = "ls&&ls";
 	const char *src5 = "ls&&;";
+	const char *src6 = "ls;&&ls;";
 	struct token_list *lst = NULL;
 
 	if (scan_tokens(src, &lst, "/bin/sh"))
@@ -53,6 +54,10 @@ int main(void)
 		print_token_list(lst);
 	}
 	printf("=========================================================\n");
+	if (scan_tokens(src6, &lst, ""))
+	{
+		print_token_list(lst);
+	}
 	free_token_list(&lst);
 	exit(EXIT_SUCCESS);
 }
