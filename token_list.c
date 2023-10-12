@@ -84,4 +84,56 @@ void free_token_list(struct token_list **lst)
 		}
 	}
 }
+/**
+ * copy_token_node - copy token node
+ * @src: source token node
+ * Return: NULL if src is NULL or a deep copy of src
+ */
+token_node_t *copy_token_node(const token_node_t *src)
+{
+	token_node_t *node = NULL;
+
+	if (src != NULL)
+	{
+		node = create_token_node(copy_token(src->token));
+		node->next = NULL;
+	}
+	return (node);
+}
+/**
+ * copy_token_list - copy token list starting from head
+ * @head: start point of copying from the list
+ * @end: where copying end!
+ * Return: a copy of token list
+ */
+token_list_t *copy_token_list(const token_node_t *head, const token_node_t *end)
+{
+	token_list_t *lst = NULL;
+	token_node_t *v;
+
+	if (head == NULL)
+		return (NULL);
+	lst = create_token_list();
+	lst->head = copy_token_node(head);
+	v = lst->head;
+	if (end == NULL)
+	{
+		while (head->next != NULL)
+		{
+			v->next = copy_token_node(head->next);
+			v = v->next;
+			head = head->next;
+		}
+	}
+	else
+	{
+		while (head->next != NULL && head != end)
+		{
+			v->next = copy_token_node(head->next);
+			v= v->next;
+			head = head->next;
+		}
+	}
+	return (lst);
+}
 

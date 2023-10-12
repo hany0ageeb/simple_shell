@@ -44,10 +44,8 @@ void report_error(const char *argv0, token_t *pre_token,
 		else
 		{
 			type = pre_token->type;
-			if ((type == PIPE && c == '|') || (type == AMPERSAND && c == '&') ||
-					(type == GREATER_THAN && c == '>') ||
-					(type == LESS_THAN && c == '<') ||
-					(type == SEMI_COLON && c == ';'))
+			if (type != WORD && type != NUMBER &&
+					(c == '|' || c == '&' || c == '>' || c == '<' || c == ';'))
 			{
 				tmp = concat_str(pre_token->lexeme, lexeme);
 				printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line, tmp);

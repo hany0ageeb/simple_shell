@@ -63,8 +63,10 @@ struct token *create_token(const char *lexeme, size_t line, token_type_t type);
 struct token *copy_token(const struct token *src);
 void free_token(struct token **tok);
 struct token_node *create_token_node(struct token *token);
+token_node_t *copy_token_node(const token_node_t *src);
 void free_token_node(struct token_node **node);
 struct token_list *create_token_list(void);
+token_list_t *copy_token_list(const token_node_t *head, const token_node_t *end);
 void add_token_to_list(struct token_list *lst, struct token *token);
 void free_token_list(struct token_list **lst);
 #endif

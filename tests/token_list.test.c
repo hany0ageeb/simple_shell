@@ -105,6 +105,68 @@ static void test_free_token_list()
 	}
 	printf("==>end free_token_list function\n");
 }
+static void test_copy_token_node()
+{
+	token_node_t *src = create_token_node(create_token("||", 1, PIPE_PIPE));
+	token_node_t *cpy;
+	printf("===>test copy_token_node function\n");
+	cpy = copy_token_node(src);
+	if (cpy != NULL && src != NULL)
+	{
+		printf("Expected [%s] GOT [%s]\n", src->token->lexeme, cpy->token->lexeme);
+	}
+	if (cpy != NULL)
+		free_token_node(&cpy);
+	if (src != NULL)
+		free_token_node(&src);
+	printf("===>end test copy_token_node function\n");
+}
+static void test_copy_token_list()
+{
+	token_list_t *org = create_token_list();
+	token_node_t *v;
+	token_list_t *copy = NULL;
+	printf("===>test copy_token_list function\n");
+	org->head = create_token_node(create_token("ls", 1, WORD));
+	org->head->next = create_token_node(create_token("-la", 1, WORD));
+	org->head->next->next = create_token_node(create_token("tests", 1, WORD));
+	printf("=Original List\n");
+	v = org->head;
+	while (v != NULL)
+	{
+		printf("Token[line=%lu, lexeme=%s]\n", v->token->line, v->token->lexeme);
+		v = v->next;
+	}
+	printf("======================\n");
+	copy = copy_token_list(org->head->next, NULL);
+	v = copy->head;
+	while (v != NULL)
+	{
+		printf("Token[line=%lu, lexeme=%s, type=%d]\n", v->token->line, v->token->lexeme, v->token->type);
+		v = v->next;
+	}
+	printf("=======================\n");
+	free_token_list(&copy);
+	copy = copy_token_list(org->head, org->head->next);
+	v = copy->head;
+        while (v != NULL)
+        {
+                printf("Token[line=%lu, lexeme=%s, type=%d]\n", v->token->line, v->token->lexeme, v->token->type);
+                v = v->next;
+        }
+	printf("=====================================\n");
+	free_token_list(&copy);
+	copy = copy_token_list(org->head, NULL);
+	v = copy->head;
+	while (v != NULL)
+	{
+		printf("Token [line=%lu, lexeme=%s]\n", v->token->line, v->token->lexeme);
+		v = v->next;
+	}
+	free_token_list(&org);
+	free_token_list(&copy);
+	printf("===>end copy_token_list function\n");
+}
 int main(void)
 {
 	printf("==============token_list.c tests================\n");
@@ -113,6 +175,11 @@ int main(void)
 	test_add_token_to_list();
 	printf("================================================\n");
 	test_free_token_list();
+	printf("=================================================\n");
+	test_copy_token_node();
+	printf("=================================================\n");
+	test_copy_token_list();
+	printf("=================================================\n");
 	printf("==============end token_list.c tests============\n");
 	exit(EXIT_SUCCESS);
 }

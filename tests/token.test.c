@@ -73,6 +73,48 @@ static void test_free_token_node()
 	}
 	printf("====end free_token_node function\n");
 }
+static void test_copy_token()
+{
+	token_t *token = NULL;
+	token_t *cpy;
+	printf("===>tests copy_token function\n");
+	printf("===>use case: when token is null will return null\n");
+	cpy = copy_token(token);
+	if (cpy != NULL)
+	{
+		printf("====>Failed: Expected NULL GOT NON NULL\n");
+		free_token(&cpy);
+	}
+	printf("===>use case: when token is not null return an exact copy.\n");
+	token = create_token(";", 1, SEMI_COLON);
+	if (token != NULL)
+	{
+		cpy = copy_token(token);
+		if (cpy != NULL)
+		{
+			if (cpy->line == token->line && cpy->type == token->type && strcmp(cpy->lexeme, token->lexeme) == 0)
+			{
+				printf("===>Passed\n");
+			}
+			else
+			{
+				printf("===>Failed\n");
+				printf("Got [%s, %lu, %d] Expected [%s, %lu, %d]\n", token->lexeme, token->line, token->type, token->lexeme, token->line, token->type);
+			}
+			free_token(&cpy);
+		}
+		else
+		{
+			printf("Failed: GOT NULL COPY\n");
+		}
+		free_token(&token);
+	}
+	else
+	{
+		printf("===>Error While creating a token for testsing.\n");
+	}
+	printf("==>end copy_token function test\n");
+}
 int main(void)
 {
 	printf("============token.c tests===========\n");
@@ -83,6 +125,8 @@ int main(void)
 	test_create_token_node();
 	printf("==================================================\n");
 	test_free_token_node();
+	printf("==================================================\n");
+	test_copy_token();
 	printf("==================================================\n");
 	printf("========token.c tests end===========\n");
 	exit(EXIT_SUCCESS);

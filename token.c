@@ -1,6 +1,7 @@
 #include "token.h"
 #include "string.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <errno.h>
 /**
  * create_token - create token object
@@ -29,7 +30,7 @@ token_t *create_token(const char *lexeme, size_t line, token_type_t type)
  */
 struct token *copy_token(const struct token *src)
 {
-	struct token *cpy = NULL;
+	token_t *cpy = NULL;
 
 	if (src != NULL)
 	{
