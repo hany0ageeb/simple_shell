@@ -4,71 +4,89 @@
 #include <stdio.h>
 #include "io.h"
 #include <unistd.h>
+#include <fcntl.h>
 #include <stdlib.h>
-static int run(const char *src);
-static int run_prompt();
-static int run_file(const char *file);
-int main(int argc, char **argv)
+static int run(const char *src, sh_session_t *session);
+static int run_prompt(sh_session_t *session);
+static int run_file(const char *file, sh_session_t *session);
+int main(int argc, char **argv, char **envp)
 {
+    sh_session_t *session = create_sesssion(argv[0], envp);
+    int ret;
+
+    if (session == NULL)
+    {
+        perror("Create session");
+        return (-1);
+    }
     if (argc == 1)
     {
-        return (run_prompt());
+        ret = run_prompt(session);
     }
     else if (argc == 2)
     {
-        return (run_file(argv[1]));
+        ret = run_file(argv[1], session);
     }
     else
     {
-        /*Usage Error*/
-        exit(EXIT_FAILURE);
+        /*TODO: */
+        ret = EXIT_FAILURE;
     }
-}
-static void print_tok_lst(struct token_list *lst)
-{
-    struct token_node *node = NULL;
-
-    if (lst != NULL && lst->head != NULL)
+    if (session != NULL)
     {
-        node = lst->head;
-        do {
-            _puts(node->token->lexeme);
-            _puts("\t\n");
-            node = node->next;
-        } while (node != NULL);
+        free_session(&session);
     }
+    return (ret);
 }
-static int run(const char *src)
+static int run(const char *src, sh_session_t *session)
 {
-    struct token_list *tok_lst = NULL;
-    tok_lst = scan_tokens(src);
-    if (tok_lst != NULL)
+    token_list_t *tok_lst = NULL;
+    if (scan_tokens(src, &tok_lst, session->sh_name))
     {
-        print_tok_lst(tok_lst);
-        free_token_list(&tok_lst);
+        parse_tokens(tok_lst);
+    }
+    else
+    {
+        return (-1);
     }
     return (0);
 }
-static int run_prompt()
+static int run_prompt(sh_session_t *session)
 {
     const char *prompt = "#cisfun$";
     char *line;
     size_t n = 0;
     ssize_t n_read, run_result;
+
     while (TRUE)
     {
-        _puts(prompt);
+        _puts(session->prompt);
         n_read = getline(&line, &n, stdin);
         if (n_read == -1)
-        return (-1);
-        run_result = run(line);
+        {
+            return (-1);
+        }
+        run_result = run(line, session);
         free(line);
-        if (run_result == -1)
+    }
+    return (run_result);
+}
+static int run_file(const char *file, sh_session_t *session)
+{
+    int fd = open(file, O_RDONLY);
+    char *line = NULL;
+    size_t n = 0;
+    ssize_t n_read;
+    if (fd == -1)
+    {
+        perror("Open File");
         return (-1);
     }
-}
-static int run_file(const char *file)
-{
-    _puts(file);
+    while ((n_read = getline(&line, &n, fd)) != -1)
+    {
+        
+    }
+    if (line != NULL)
+        free(line);
     return (0);
 }

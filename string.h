@@ -10,4 +10,7 @@ char *copy_str(const char *str);
 char *sub_str(const char *str, size_t lo, size_t hi);
 char *concat_str(const char *str1, const char *str2);
 int str_cmp(const char *str1, const char *str2);
+bool_t start_with(const char *str, const char *start);
+char **split_str(const char *str, const char separator);
+bool_t contains_char(const char *str, const char c);
 #endif

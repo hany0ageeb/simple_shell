@@ -1,5 +1,7 @@
 #ifndef IO_H_
 #define IO_H_
+#define BUFF_SIZE 1024
+#define FLUSH_BUFF 0
 int _fputs(const char *str, int fdout);
 int _puts(const char *str);
 int _fputc(char c, int fdout);

@@ -1,4 +1,5 @@
 #include "shell.h"
+#include "string.h"
 #include <stdio.h>
 #include <sys/types.h>
 /**
@@ -68,7 +69,18 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end)
 	}
 	else
 	{
-		cmd_token = copy_token(start->token);
+		if (contains_char(start->token->lexeme, '/'))
+		{
+			cmd_token = copy_token(start->token);
+		}
+		else if (is_builtin_cmd(start->token->lexeme))
+		{
+			
+		}
+		else
+		{
+
+		}
 		start = start->next;
 		if (start != NULL && start != end)
 		{
