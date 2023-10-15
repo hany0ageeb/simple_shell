@@ -13,7 +13,7 @@ typedef struct sh_session
 typedef struct builtin_cmd
 {
 	char *cmd;
-	int (*execute)(simple_command_t *command);
+	int (*execute)(simple_command_t *command, sh_session_t *session);
 };
 typedef struct alias
 {

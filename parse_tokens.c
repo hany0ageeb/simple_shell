@@ -2,6 +2,8 @@
 #include "string.h"
 #include <stdio.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>>
 /**
  * get_op - get op
  * @start: start node
@@ -42,11 +44,45 @@ token_node_t *get_op(token_node_t *start, token_node_t *end)
 	}
 	return (node);
 }
-int execute_command(simple_command_t *command)
+int execute_command(simple_command_t *command, sh_session_t *session)
 {
+	pid_t child_id;
+
 	if (command == NULL)
 		return (-1);
+	if (command->op == NULL)
+	{
+		child_id = fork();
+		if (child_id == -1)
+		{
+			perror("fork");
+			return (-1);
+		}
+		else if (child_id == 0)
+		{
+			if (command->is_builtin)
+			{
 
+			}
+			else
+			{
+				if (execve(command->cmd->lexeme, get_args(command), session->env_var_lst) == -1)
+				{
+					perror("execve");
+					return (-1);
+				}
+			}
+		}
+		else
+		{
+			wait(&session->status);
+			return (session->status);
+		}
+	}
+	else
+	{
+
+	}
 }
 simple_command_t *get_simple_command(token_node_t *start, token_node_t *end)
 {
@@ -66,20 +102,22 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end)
 		left = get_simple_command(start, e);
 		right = get_simple_command(op_node->next, end);
 		command = create_binary_command(left, right, op_node->token);
+		command->is_builtin = FALSE;
 	}
 	else
 	{
 		if (contains_char(start->token->lexeme, '/'))
 		{
 			cmd_token = copy_token(start->token);
+			command->is_builtin = FALSE;
 		}
 		else if (is_builtin_cmd(start->token->lexeme))
 		{
-			
+			command->is_builtin = TRUE;
 		}
 		else
 		{
-
+			command->is_builtin = TRUE;
 		}
 		start = start->next;
 		if (start != NULL && start != end)
@@ -90,12 +128,11 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end)
 	}
 	return (command);
 }
-int parse_tokens(const token_list_t *lst)
+int parse_tokens(const token_list_t *lst, sh_session_t *session)
 {
 	token_node_t *start, *current;
 	simple_command_t *command = NULL;
 	int execute_result = 0;
-	/*pid_t child_pid;*/
 
 	if (lst == NULL || lst->head == NULL)
 		return (0);
@@ -105,9 +142,9 @@ int parse_tokens(const token_list_t *lst)
 		while (current != NULL && current->next != NULL && current->next->token->type != NEW_LINE && current->next->token->type != SEMI_COLON)
 			current = current->next;
 		command = get_simple_command(start, current);
-		if (command != NULL)
+		if (command != NULL && command->execute != NULL)
 		{
-			
+			execute_result = command->execute(command, session);
 		}
 		if (current != NULL && current->next != NULL)
 		{

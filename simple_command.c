@@ -83,4 +83,37 @@ void free_simple_command(simple_command_t **command)
 	}
 	errno = 0;
 }
+char **get_args(const simple_command_t *command)
+{
+	char **args = NULL;
+	token_node_t *node = NULL;
+	size_t len = 0, i;
 
+	if (command != NULL && command->cmd != NULL)
+	{
+		len++;
+		if (command->args != NULL && command->args->head != NULL)
+		{
+			node = command->args->head;
+			while (node != NULL)
+			{
+				len++;
+				node = node->next;
+			}
+		}
+	}
+	if (len > 0)
+	{
+		args = malloc(sizeof(char *) * (len + 1));
+		args[0] = copy_str(command->cmd->lexeme);
+		i = 1;
+		node = command->args != NULL && command->args->head != NULL ? command->args->head : NULL;
+		while (i < len && node != NULL)
+		{
+			args[i] = copy_str(node->token->lexeme);
+			i++;
+			node = node->next;
+		}
+	}
+	return (args);
+}
