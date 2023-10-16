@@ -109,15 +109,18 @@ static void print_not_found_err(const char *lexeme, size_t line, const char *pro
 	_puts(lexeme);
 	_puts(": not found");
 }
-simple_command_t *get_simple_command(token_node_t *start, token_node_t *end)
+simple_command_t *get_simple_command(token_node_t *start, token_node_t *end, sh_session_t *session)
 {
-	token_node_t *op_node = NULL, *e = NULL;
+	token_node_t *op_node = NULL, *e = NULL, *v = NULL;
 	token_t *cmd_token = NULL;
 	token_list_t *args = NULL;
 	simple_command_t *command = NULL, *left = NULL, *right = NULL;
 	bool_t builtin_command = FALSE;
+	size_t lo, hi, len;
 	char *full_path;
 	char **paths;
+	char *var_name = NULL;
+	char *var_value;
 
 	if (start == NULL)
 		return (NULL);
@@ -163,6 +166,33 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end)
 		if (start != NULL && start != end)
 		{
 			args = copy_token_list(start, end);
+		}
+		if (args != NULL && args->head != NULL)
+		{
+			v = args->head;
+			do
+			{
+				if (v->token->type == DOLLAR_DOLLAR)
+				{
+					free(v->token->lexeme);
+					v->token->lexeme = int_to_str(getpid());
+				}
+				else if (v->token->type == DOLLAR_QUESTION)
+				{
+					free(v->token->lexeme);
+					v->token->lexeme = int_to_str(session->status);
+				}
+				else if (v->token->type == VARIABLE)
+				{
+					free(v->token->lexeme);
+					var_value = _getenv(v->token->lexeme, session->env_var_lst);
+					if (var_value == NULL)
+					v->token->lexeme = copy_str("");
+					else
+					v->token->lexeme = copy_str(var_value);
+				}
+				v = v->next;
+			} while (v != NULL);
 		}
 		command = create_simple_command(cmd_token, args);
 		command->is_builtin = builtin_command;

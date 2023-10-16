@@ -101,6 +101,21 @@ bool_t str_equals(const char *str1, const char *str2)
     return (FALSE);
     for (i = 0; str1[i] != '\0' && str2[i] != '\0'; ++i)
     {
-        
+        if (str1[i] != str2[i])
+        return (FALSE);
     }
+    if (str1[i] != str2[i])
+    return (FALSE);
+    return (TRUE);
+}
+ssize_t index_of(const char *str, size_t lo, size_t hi, const char c)
+{
+    size_t i;
+
+    for (i = lo; i <= hi && str[i] != '\0'; ++i)
+    {
+        if (str[i] == c)
+        return ((ssize_t)i);
+    }
+    return (-1);
 }

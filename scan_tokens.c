@@ -163,7 +163,7 @@ bool_t scan_tokens(const char *src, token_list_t **lst,
 		if (c == '\t' || c == '\r' || c == ' ')
 			;
 		else if (c == '\n' || c == '|' || c == ';'
-				|| c == '&' || c == '>' || c == '<')
+				|| c == '&' || c == '>' || c == '<' || c == '$')
 			consume_token(src, c, &pre_token, lst, &current, &line);
 		else if (c == '#')
 			consume_comment(src, c, &current, &line);

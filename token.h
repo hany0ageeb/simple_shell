@@ -14,6 +14,9 @@
  * @WORD: word token
  * @NUMBER: number token (not used)
  * @GREATER_GREATER: >> token type
+ * @DOLLAR_DOLLAR: $$ token
+ * @DOLLAR_QUESTIOIN: $? token
+ * @VARIABLE: $xyz
 */
 typedef enum token_type
 {
@@ -27,7 +30,10 @@ typedef enum token_type
 	NUMBER = 8,
 	GREATER_THAN = 9,
 	LESS_THAN = 10,
-	GREATER_GREATER = 11
+	GREATER_GREATER = 11,
+	DOLLAR_DOLLAR = 12,
+	DOLLAR_QUESTION = 13,
+	VARIABLE = 14
 } token_type_t;
 /**
  * struct token - token

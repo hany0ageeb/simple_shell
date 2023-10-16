@@ -31,7 +31,8 @@ bool_t is_alpha_numeric(const char c)
 	if (IS_DIGIT(c))
 		return (TRUE);
 	if (c == '|' || c == ';' || c == '&' || c == '>' || c == '<'
-			|| c == '\n' || c == ' ' || c == '\t' || c == '\r' || c == '\0')
+			|| c == '\n' || c == ' ' || c == '\t' || c == '\r' || c == '\0'
+			|| c == '$')
 		return (FALSE);
 	return (TRUE);
 }
@@ -76,6 +77,9 @@ void consume_word_token(const char *src, char c, size_t *pcurrent,
 void consume_token(const char *src, char c, struct token **pre_token,
 		token_list_t **lst, size_t *pcurrent, size_t *pline)
 {
+	char *lex = NULL;
+	size_t lo;
+
 	if (c == '\n')
 	{
 		*pre_token = add_token(lst, "\n", *pline, NEW_LINE);
@@ -100,5 +104,19 @@ void consume_token(const char *src, char c, struct token **pre_token,
 			*pre_token = add_token(lst, ">", *pline, GREATER_THAN);
 	else if (c == '<')
 		*pre_token = add_token(lst, "<", *pline, LESS_THAN);
+	else if (c == '$')
+		if (match('$', src, pcurrent))
+			*pre_token = add_token(lst, "$$", *pline, DOLLAR_DOLLAR);
+		else if (match('?', src, pcurrent))
+			*pre_token = add_token(lst, "$?", *pline, DOLLAR_QUESTION);
+		else
+		{
+			lo = *pcurrent - 1;
+			while (is_alpha_numeric(src[*pcurrent]))
+			(*pcurrent)++;
+			lex = sub_str(src, lo, (*pcurrent) - 1);
+			*pre_token = add_token(lst, lex, *pline, VARIABLE);
+			free(lex);
+		}
 }
 
