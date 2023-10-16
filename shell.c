@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 
 size_t str_list_len(const char **str_list)
 {
@@ -22,6 +23,7 @@ sh_session_t *create_sesssion(const char *argv0, const char **envp)
     {
         session->prompt = copy_str("cisfun$");
         session->sh_name = copy_str(argv0);
+        session->alias_file_name = copy_str(".alias");
         len = str_list_len(envp);
         session->env_var_lst = malloc(sizeof(char *) * (len + 1));
         session->env_var_lst[len] = NULL;
@@ -44,6 +46,11 @@ void free_session(sh_session_t **session)
         {
             free((*session)->sh_name);
             (*session)->sh_name = NULL;
+        }
+        if ((*session)->alias_file_name != NULL)
+        {
+            free((*session)->alias_file_name);
+            (*session)->alias_file_name = NULL;
         }
         if ((*session)->env_var_lst != NULL)
         {
@@ -433,8 +440,271 @@ static void print_cd_error(const char *sh, size_t line, const char *dir)
         lin = NULL;
     }
 }
+alias_t *create_alias(char *name, char *value)
+{
+    alias_t *a = malloc(sizeof(alias_t));
+    if (a != NULL)
+    {
+        a->name = name;
+        a->value = value;
+    }
+    return (a);
+}
+void free_alias(alias_t **a)
+{
+    if (a != NULL && *a != NULL)
+    {
+        if ((*a)->name != NULL)
+        {
+            free((*a)->name);
+            (*a)->name = NULL;
+        }
+        if ((*a)->value != NULL)
+        {
+            free((*a)->value);
+            (*a)->value = NULL;
+        }
+        free(*a);
+        *a = NULL;
+    }
+}
+int write_alias(const char *home_dir, const char *f_name, alias_node_t *head)
+{
+    char *line, *tmp = NULL, *path = NULL;
+    int fdout;
+
+    if (IS_NULL_OR_EMPTY(home_dir))
+    {
+        path = concat_str("./", f_name);
+    }
+    else
+    {
+        tmp = concat_str(home_dir, "/");
+        path = concat_str(tmp, f_name);
+        if (tmp != NULL)
+        {
+            free(tmp);
+            tmp = NULL;
+        }
+    }
+    fdout = open(path, O_WRONLY | O_CREAT | O_TRUNC);
+    if (fdout == -1)
+    {
+        perror("open");
+        return (-1);
+    }
+    while (head != NULL)
+    {
+        tmp = concat_str(head->data->name, "=");
+        line = concat_str(tmp, head->data->value);
+        if (tmp != NULL)
+        {
+            free(tmp);
+            tmp = NULL;
+        }
+        tmp = concat_str(line, "\n");
+        _fputs(tmp, fdout);
+        if (tmp != NULL)
+        {
+            free(tmp);
+            tmp = NULL;
+        }
+        if(line != NULL)
+        {
+        free(line);
+        line = NULL;
+        }
+        head = head->next;
+    }
+    close(fdout);
+    return (0);
+}
+alias_node_t *read_alias(const char *home_dir, const char *f_name)
+{
+    char *tmp = concat_str(home_dir, "/");
+    char *path = concat_str(tmp, f_name);
+    char *lineptr = NULL;
+    char *name = NULL, *value = NULL;
+    ssize_t n_read = 0;
+    size_t n = 0;
+    int index;
+    alias_node_t *head = NULL;
+    alias_t *a = NULL;
+    int fdin;
+
+    if (tmp != NULL)
+    {
+        free(tmp);
+        tmp = NULL;
+    }
+    fdin = open(path, O_RDONLY | O_CREAT);
+    if (path != NULL)
+    {
+        free(path);
+        path = NULL;
+    }
+    if (fdin == -1)
+    {
+        perror("open");
+        return (NULL);
+    }
+    while ((n_read = _getline(&lineptr, &n, fdin)) != -1)
+    {
+        if (!(IS_NULL_OR_EMPTY(lineptr)))
+        {
+            index = index_of(lineptr, 0, n, '=');
+            if (index != -1)
+            {
+                name = sub_str(lineptr, 0, index - 1);
+                value = sub_str(lineptr, index + 1, n - 1);
+            }
+            else
+            {
+                name = copy_str(lineptr);
+                value = copy_str("");
+            }
+            a = create_alias(name, value);
+            add_to_alias_list(&head, a);
+        }
+    }
+    if (n_read == -1 && errno == 0 && !(IS_NULL_OR_EMPTY(lineptr)))
+    {
+        index = index_of(lineptr, 0, n, '=');
+        if (index != -1)
+        {
+            name = sub_str(lineptr, 0, index - 1);
+            value = sub_str(lineptr, index + 1, n - 1);
+        }
+        else
+        {
+            name = copy_str(lineptr);
+            value = copy_str("");
+        }
+        a = create_alias(name, value);
+        add_to_alias_list(&head, a);
+        free(lineptr);
+    }
+    close(fdin);
+    return (head);
+}
+void print_alias_all(alias_node_t *head)
+{
+    while (head != NULL)
+    {
+        _puts("alias ");
+        _puts(head->data->name);
+        _puts("=");
+        _putc('\'');
+        _puts(head->data->value);
+        _puts("\'\n");
+        head = head->next;
+    }
+}
+void print_alias(const char *name, alias_node_t *head)
+{
+    while (head != NULL)
+    {
+        if (str_equals(name, head->data->name))
+        {
+            _puts("alias ");
+        _puts(head->data->name);
+        _puts("=");
+        _putc('\'');
+        _puts(head->data->value);
+        _puts("\'\n");
+        break;
+        }
+        head = head->next;
+    }
+}
+alias_node_t *add_to_alias_list(alias_node_t **head, alias_t *a)
+{
+    alias_node_t *node = NULL, *end = NULL;
+    if (a == NULL)
+    return (NULL);
+    node = malloc(sizeof(alias_node_t));
+    if (node != NULL)
+    {
+        node->data = a;
+        node->next = NULL;
+        if (*head == NULL)
+        {
+            *head = node;
+        }
+        else
+        {
+            end = *head;
+            while (end->next != NULL)
+            {
+                end = end->next;
+            }
+            end->next = node;
+        }
+    }
+    return (node);
+}
+alias_node_t *add_or_update_alias_list(alias_node_t **head, const char *name, char *value)
+{
+    alias_node_t *v;
+    if (IS_NULL_OR_EMPTY(name))
+    return (NULL);
+    if (*head == NULL)
+    {
+        return (add_to_alias_list(head, create_alias(name, value)));
+    }
+    else
+    {
+        v = *head;
+        do {
+            if (str_equals(v->data->name, name))
+            {
+                if (v->data->value != NULL)
+                free(v->data->value);
+                v->data = value;
+                return (v);
+            }
+        } while(v != NULL);
+        return (add_to_alias_list(head, create_alias(name, value)));
+    }
+}
 int alias_exec(simple_command_t *command, sh_session_t *session)
 {
+    char *home_dir = NULL;
+    alias_node_t *head = NULL;
+    token_node_t *v = NULL;
+    char *name, *value;
+    size_t len;
+    int index;
+
+    home_dir = _getenv("HOME", session->env_var_lst);
+    if (home_dir != NULL)
+    {
+        head = read_alias(home_dir, session->alias_file_name);
+    }
+    if (command->args == NULL || command->args->head == NULL)
+    {
+        print_alias_all(head);
+    }
+    else
+    {
+        do {
+            len = str_len(v->token->lexeme);
+            if ((index = index_of(v->token->lexeme, 0, len - 1,'=')) >= 0)
+            {
+                name = sub_str(v->token->lexeme, 0, index - 1);
+                value = sub_str(v->token->lexeme, index + 1, len - 1);
+                add_or_update_alias_list(&head, name, value);
+            }
+            else
+            {
+                print_alias(v->token->lexeme, head);
+            }
+        } while (v != NULL);
+    }
+    if (head != NULL)
+    {
+        write_alias(home_dir, session->alias_file_name, head);
+    }
     return (0);
 }
 int setenv_exec(simple_command_t *command, sh_session_t *session)

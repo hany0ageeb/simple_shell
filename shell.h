@@ -10,6 +10,7 @@ typedef struct sh_session
 	char *sh_name;
 	char *prompt;
 	int status;
+	char *alias_file_name;
 } sh_session_t;
 typedef int (*exec_cmd)(simple_command_t *command, sh_session_t *session);
 typedef struct alias
@@ -17,6 +18,16 @@ typedef struct alias
 	char *name;
 	char *value;
 } alias_t;
+typedef struct alias_node
+{
+	struct alias* data;
+	struct alias_node *next;
+} alias_node_t;
+alias_t *create_alias(char *name, char *value);
+void free_alias(alias_t **a);
+alias_node_t *add_to_alias_list(alias_node_t **head, alias_t *al);
+alias_node_t *add_or_update_alias_list(alias_node_t **head, const char *name, char *value);
+void free_alias_list(alias_node_t **head);
 sh_session_t *create_sesssion(const char *argv0, const char **envp);
 void free_session(sh_session_t **session);
 size_t str_list_len(const char **str_list);
