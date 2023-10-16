@@ -92,3 +92,15 @@ bool_t contains_char(const char *str, const char c)
     }
     return (FALSE);
 }
+bool_t str_equals(const char *str1, const char *str2)
+{
+    size_t i;
+    if (str1 == str2)
+    return (TRUE);
+    if (str1 == NULL || str2 == NULL)
+    return (FALSE);
+    for (i = 0; str1[i] != '\0' && str2[i] != '\0'; ++i)
+    {
+        
+    }
+}

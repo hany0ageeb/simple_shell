@@ -1,5 +1,6 @@
 #include "shell.h"
 #include "string.h"
+#include "io.h"
 #include <stdlib.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -131,6 +132,62 @@ bool_t file_exists(const char *d, const char *f)
         }
     }
     return (FALSE);
+}
+void add_to_str_list(char **str_list, const char *value)
+{
+    size_t len, i = 0;
+    char **tmp = NULL;
+    if (IS_NULL_OR_EMPTY(value))
+    return;
+    len = str_list_len(str_list);
+    tmp = malloc(sizeof(char *) * (len + 2));
+    while (str_list[i] != NULL)
+    {
+        tmp[i] = copy_str(str_list[i]);
+        i++;
+    }
+    tmp[i] = copy_str(value);
+    tmp[i + 1] = NULL;
+    free_str_list(str_list);
+    str_list = tmp;
+}
+void remove_from_str_list(char **str_list, const char *start)
+{
+    size_t i = 0, len, j = 0;
+    int exist_index = -1;
+    char **tmp;
+
+    if (IS_NULL_OR_EMPTY(start) == TRUE)
+    return;
+    for (i = 0; str_list[i] != NULL; ++i)
+    {
+        if (start_with(str_list[i], start) == TRUE)
+        {
+            exist_index = i;
+            break;
+        }
+    }
+    if (exist_index >= 0)
+    {
+        len = str_list_len(str_list);
+        tmp = malloc(sizeof(char *) * (len));
+        while (str_list[i] != NULL)
+        {
+            if (i != exist_index)
+            {
+                tmp[j] = str_list[i];
+                str_list[i] = NULL;
+            }
+            else
+            {
+                free(str_list[i]);
+                str_list[i] = NULL;
+            }
+            i++;
+        }
+        free(str_list);
+        str_list = tmp;
+    }
 }
 void free_str_list(char **str_list)
 {
@@ -276,6 +333,63 @@ char *_getenv(const char *name, const char **envp)
         free(start_w);
     return (NULL);
 }
+int _setenv(const char *name, const char *value, bool_t overwrite, char **envp)
+{
+    size_t name_idx = -1;
+    size_t i = 0;
+    char *tmp;
+    char *_name = NULL;
+
+    if (IS_NULL_OR_EMPTY(name) == TRUE || contains_char(name, '=') == TRUE)
+    {
+        errno = EINVAL;
+        return (-1);
+    }
+    while (envp[i] != NULL)
+    {
+        if (start_with(envp[i], name) == TRUE)
+        {
+            name_idx = i;
+            break;
+        }
+        i++;
+    }
+    if (name_idx == -1)
+    {
+        _name = concat_str(name, "=");
+        add_to_str_list(envp, _name);
+        free(_name);
+    }
+    else if (name_idx >= 0 && overwrite == TRUE)
+    {
+        free(envp[i]);
+        tmp = concat_str(name, "=");
+        envp[i] = concat_str(tmp, value);
+        if (tmp != NULL)
+        {
+            free(tmp);
+            tmp = NULL;
+        }
+    }
+    return (0);
+}
+int _unsetenv(const char *name, char **envp)
+{
+    char *start_with = NULL;
+
+    if (IS_NULL_OR_EMPTY(name) || contains_char(name, '=') == TRUE)
+    {
+        errno = EINVAL;
+        return (-1);
+    }
+    start_with = concat_str(name, "=");
+    remove_from_str_list(envp, start_with);
+    if (start_with != NULL)
+    {
+        free(start_with);
+        start_with = NULL;
+    }
+}
 char **get_paths(const char **envp)
 {
     if (envp == NULL)
@@ -296,31 +410,150 @@ bool_t is_builtin_cmd(const char *lex)
 {
         if (lex == NULL)
                 return (FALSE);
-        if (str_cmp(lex, "exit") == 0 || str_cmp (lex, "env") == 0)
+        if (str_equals(lex, "exit") || str_equals (lex, "env"))
                 return (TRUE);
-        else if (str_cmp(lex, "setenv") == 0 || str_cmp(lex, "unsetenv") == 0)
+        else if (str_equals(lex, "setenv") || str_equals(lex, "unsetenv"))
                 return (TRUE);
+        else if (str_equals(lex, "cd") || str_equals(lex, "alias"))
+            return (TRUE);
         return (FALSE);
+}
+static void print_cd_error(const char *sh, size_t line, const char *dir)
+{
+    char *lin = int_to_str(line);
+    _puts(sh);
+    _puts(": ");
+    _puts(lin);
+    _puts(": cd: can't cd to ");
+    _puts(dir);
+    _putc('\n');
+    if (lin != NULL)
+    {
+        free(lin);
+        lin = NULL;
+    }
+}
+int alias_exec(simple_command_t *command, sh_session_t *session)
+{
+    return (0);
+}
+int setenv_exec(simple_command_t *command, sh_session_t *session)
+{
+    size_t len = 0;
+    token_node_t *node;
+    char *lin;
+    if (command->args == NULL || command->args->head == NULL)
+    {
+        return (env_exec(command, session));
+    }
+    node = command->args->head;
+    while (node != NULL)
+    {
+        len++;
+        node = node->next;
+    }
+    if (len > 2)
+    {
+        _puts(session->sh_name);
+        _puts(": ");
+        lin = int_to_str(command->cmd->line);
+        _puts(lin);
+        _puts(": setenv: too many arguments");
+        _putc('\n');
+        return (1);
+    }
+    return (_setenv(command->args->head->token->lexeme, command->args->head->next->token->lexeme, TRUE, session->env_var_lst));
+}
+int unsetenv_exec(simple_command_t *command, sh_session_t *session)
+{
+    char *lin;
+    token_node_t *node;
+
+    if (command->args == NULL || command->args->head == NULL)
+    {
+        _puts(session->sh_name);
+        _puts(": ");
+        lin = int_to_str(command->cmd->line);
+        _puts(lin);
+        _puts(": unsetenv: too few arguments");
+        _putc('\n');
+        return (1);
+    }
+    node = command->args->head;
+    while (node != NULL)
+    {
+        _unsetenv(node->token->lexeme, session->env_var_lst);
+        node = node->next;
+    }
+    return (0);
 }
 int cd_exec(simple_command_t *command, sh_session_t *session)
 {
-        /*cd*/
-        if (command->args == NULL || command->args->head == NULL)
+    char *home = NULL;
+    char *pwd = NULL;
+    char *oldpwd = NULL;
+    DIR* dir = NULL;
+
+    if (command->args == NULL || command->args->head == NULL)
+    {
+        /*cd $HOME*/
+        home = _getenv("HOME", session->env_var_lst);
+        if (home != NULL)
         {
-                char *old
+            chdir(home);
+            pwd = _getenv("PWD", session->env_var_lst);
+            if (pwd != NULL)
+            _setenv("OLDPWD", pwd, TRUE, session->env_var_lst);
+            _setenv("PWD", home, TRUE, session->env_var_lst);
+            free(home);
+        }
+    }
+    else
+    {
+        if (str_cmp(command->args->head->token->lexeme, "-") == 0)
+        {
+            oldpwd = _getenv("OLDPWD", session->env_var_lst);
+            pwd = _getenv("PWD", session->env_var_lst);
+            if (oldpwd != NULL)
+            {
+                chdir(oldpwd);
+                _setenv("PWD", oldpwd, TRUE, session->env_var_lst);
+                if (pwd != NULL)
+                {
+                    _setenv("OLDPWD", pwd, TRUE, session->env_var_lst);
+                }
+            }
         }
         else
         {
+            DIR* dir = opendir(command->args->head->token->lexeme);
+            if (dir == NULL)
+            {
+                print_cd_error(session->sh_name, command->cmd->line, command->args->head->token->lexeme);
+                return(2);
+            }
+            else
+            {
+                closedir(dir);
+                dir = NULL;
+                oldpwd = _getenv("PWD", session->env_var_lst);
+                _setenv("PWD", command->args->head->token->lexeme, TRUE, session->env_var_lst);
+                if (oldpwd != NULL)
+                {
+                    _setenv("OLDPWD", oldpwd, TRUE, session->env_var_lst);
+                    free(oldpwd);
+                }
+            }
         }
+    }
 }
 int env_exec(simple_command_t *command, sh_session_t *session)
 {
-        size_t i;
-
+    size_t i;
         for (i = 0; session->env_var_lst[i] != NULL; ++i)
         {
-                _puts(session->env_var_lst[i]);
-                _putc('\n');
+            _puts(session->env_var_lst[i]);
+            _putc('\n');
         }
         return (0);
 }

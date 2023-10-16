@@ -47,91 +47,60 @@ token_node_t *get_op(token_node_t *start, token_node_t *end)
 int execute_command(simple_command_t *command, sh_session_t *session)
 {
 	pid_t child_id;
+	int ret = -1;
+	char **args = NULL;
 
 	if (command == NULL)
 		return (-1);
-	if (command->op == NULL)
+	if (command->op != NULL)
 	{
-		if (command->is_builtin)
+		ret = command->left->execute(command->left, session);
+		if ((ret == 0 && command->op->type == AMP_AMP) || (ret == -1 && command->op->type == PIPE_PIPE))
 		{
-			if (str_cmp(command->cmd->lexeme, "exit") == 0)
-				session->status = exit_exec(command, session);
-			return session->status;
+			ret = command->right->execute(command->right, session);
 		}
-		child_id = fork();
-		if (child_id == -1)
-		{
-			perror("fork");
-			return (-1);
-		}
-		else if (child_id == 0)
-		{
-			if (command->is_builtin)
-			{
-				if (str_cmp(command->cmd->lexeme, "env") == 0)
-				{
-					session->status = env_exec(command, session);
-					return (session->status);
-				}
-				else if (str_cmp(command->cmd->lexeme, "cd") == 0)
-				{
-				}
-				return (-1);
-			}
-			else
-			{
-				if (execve(command->cmd->lexeme, get_args(command), session->env_var_lst) == -1)
-				{
-					perror("execve");
-					return (-1);
-				}
-			}
-		}
-		else
-		{
-			wait(&session->status);
-			return (session->status);
-		}
+		session->status = ret;
 	}
 	else
 	{
-		child_id = fork();
-		if (child_id == -1)
+		if (command->is_builtin)
 		{
-			perror("fork");
-			return (-1);
-		}
-		else if(child_id == 0)
-		{
-			session->status = command->left->execute(command->left, session);
-			return (session->status);
+			return (command->execute(command, session));
 		}
 		else
 		{
-			wait(&session->status);
-			if ((session->status == 0 && command->op->type == AMP_AMP) || (session->status == 0 && command->op->type == PIPE_PIPE))
+			child_id = fork();
+			if (child_id == -1)
 			{
-				child_id = fork();
-				if (child_id == -1)
+				perror("fork");
+				return (-1);
+			}
+			else if (child_id == 0)
+			{
+				args = get_args(command);
+				if (execve(command->cmd->lexeme, args, session->env_var_lst) == -1)
 				{
-					perror("fork");
-					return (-1);
+					if (args != NULL)
+					{
+						free_str_list(args);
+					}
+					perror("execve");
+					return(-1);
 				}
-				else if (child_id == 0)
-				{
-					session->status = command->right->execute(command->right, session);
-					return (session->status);
-				}
-				else
-				{
-					wait(&session->status);
-				}
+			}
+			else
+			{
+				wait(&session->status);
 			}
 		}
 	}
-	return (session->status);
+	if (args != NULL && *args != NULL)
+	{
+		free_str_list(args);
+	}
+	return (ret);
 }
-static void print_err(const char *lexeme, size_t line, const char *prog)
+static void print_not_found_err(const char *lexeme, size_t line, const char *prog)
 {
 	_puts(prog);
 	_puts(": ");
@@ -162,6 +131,7 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end)
 		right = get_simple_command(op_node->next, end);
 		command = create_binary_command(left, right, op_node->token);
 		command->is_builtin = FALSE;
+		command->execute = execute_command;
 	}
 	else
 	{
@@ -183,7 +153,7 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end)
                                        free_str_list(paths);
 		       if (full_path == NULL)
 		       {
-			       print_err(session->sh_name, start->line, start->lexeme);
+			       print_not_found_err(session->sh_name, start->line, start->lexeme);
 			       return (NULL);
 		       }
 		       cmd_token = create_token(full_path, start->line, WORD);
@@ -198,6 +168,23 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end)
 		command->is_builtin = builtin_command;
 		if (builtin_command == FALSE)
 			command->execute = execute_command;
+		else
+		{
+			if (str_equals(cmd_token->lexeme, "exit"))
+			command->execute = exit_exec;
+			else if (str_equals(cmd_token->lexeme, "cd"))
+			command->execute = cd_exec;
+			else if (str_equals(cmd_token->lexeme, "setenv"))
+			command->execute = setenv_exec;
+			else if (str_equals(cmd_token->lexeme, "unsetenv"))
+			command->execute = unsetenv_exec;
+			else if (str_equals(cmd_token->lexeme, "env"))
+			command->execute = env_exec;
+			else if (str_equals(cmd_token->lexeme, "alias"))
+			command->execute = alias_exec;
+			else
+			command->execute = NULL;
+		}
 	}
 	return (command);
 }

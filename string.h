@@ -13,4 +13,5 @@ int str_cmp(const char *str1, const char *str2);
 bool_t start_with(const char *str, const char *start);
 char **split_str(const char *str, const char separator);
 bool_t contains_char(const char *str, const char c);
+bool_t str_equals(const char *str1, const char *str2);
 #endif

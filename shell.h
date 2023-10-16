@@ -20,6 +20,9 @@ typedef struct alias
 sh_session_t *create_sesssion(const char *argv0, const char **envp);
 void free_session(sh_session_t **session);
 size_t str_list_len(const char **str_list);
+void free_str_list(char **str_list);
+void add_to_str_list(char **str_list, const char *value);
+void remove_from_str_list(char **str_list, const char *start_with);
 bool_t is_regular_file(const char *d, const char *f);
 bool_t file_exists(const char *d, const char *f);
 bool_t is_valid_num(const char *str);
@@ -44,7 +47,7 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end);
 int parse_tokens(const token_list_t *lst);
 bool_t is_builtin_cmd(const char *lex);
 char **get_paths(const char **envp);
-char *find_full_path(const char *cmd, char **envp);
+char *find_full_path(const char *cmd, const char **paths);
 char *_getenv(const char *name, const char **envp);
 int cd_exec(simple_command_t *command, sh_session_t *session);
 int env_exec(simple_command_t *command, sh_session_t *session);
