@@ -1,10 +1,51 @@
 #include "shell.h"
 #include "string.h"
 #include "token.h"
-#include <stdio.h>
+#include "io.h"
 #include <stdlib.h>
 #include <errno.h>
+void print_error(const char *argv0, size_t line, const char *lexeme, const char *mssg)
+{
+	char *line_str, *tmp, *l;
 
+	tmp = concat_str(argv0,": ");
+	l = int_to_str(line);
+	line_str = concat_str(tmp, l);
+	if (tmp != NULL)
+	{
+		free(tmp);
+		tmp = NULL;
+	}
+	if (l != NULL)
+	{
+		free(l);
+		l = NULL;
+	}
+	tmp = concat_str(line_str, mssg);
+	if (line_str != NULL)
+	{
+		free(line_str);
+		line_str = NULL;
+	}
+	line_str = concat_str(tmp, lexeme);
+	if (tmp != NULL)
+	{
+		free(tmp);
+		tmp = NULL;
+	}
+	tmp = concat_str(line_str, "\" unexpected\n");
+	if (line_str != NULL)
+	{
+		free(line_str);
+		line_str = NULL;
+	}
+	_puts(tmp);
+	if (tmp != NULL)
+	{
+		free(tmp);
+		tmp = NULL;
+	}
+}
 /**
  * report_error - report syntax errors
  * @argv0: program name as passed to argv of main function
@@ -31,15 +72,17 @@ void report_error(const char *argv0, token_t *pre_token,
 			tmp = copy_str(">>");
 		else if (next_char == '&' && c == '&')
 			tmp = copy_str("&&");
-		printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line,
-				tmp != NULL ? tmp : lexeme);
+		print_error(argv0, line, tmp != NULL ? tmp : lexeme, " Syntax error: \"");
+		/*printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line,
+				tmp != NULL ? tmp : lexeme);*/
 	}
 	else
 	{
 		if (c == '\n')
 		{
-			printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line,
-					pre_token->lexeme);
+			print_error(argv0, line, pre_token->lexeme, "Syntax error: \"");
+			/*printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line,
+					pre_token->lexeme);*/
 		}
 		else
 		{
