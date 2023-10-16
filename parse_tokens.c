@@ -52,6 +52,12 @@ int execute_command(simple_command_t *command, sh_session_t *session)
 		return (-1);
 	if (command->op == NULL)
 	{
+		if (command->is_builtin)
+		{
+			if (str_cmp(command->cmd->lexeme, "exit") == 0)
+				session->status = exit_exec(command, session);
+			return session->status;
+		}
 		child_id = fork();
 		if (child_id == -1)
 		{
@@ -62,7 +68,15 @@ int execute_command(simple_command_t *command, sh_session_t *session)
 		{
 			if (command->is_builtin)
 			{
-
+				if (str_cmp(command->cmd->lexeme, "env") == 0)
+				{
+					session->status = env_exec(command, session);
+					return (session->status);
+				}
+				else if (str_cmp(command->cmd->lexeme, "cd") == 0)
+				{
+				}
+				return (-1);
 			}
 			else
 			{
@@ -81,8 +95,50 @@ int execute_command(simple_command_t *command, sh_session_t *session)
 	}
 	else
 	{
-
+		child_id = fork();
+		if (child_id == -1)
+		{
+			perror("fork");
+			return (-1);
+		}
+		else if(child_id == 0)
+		{
+			session->status = command->left->execute(command->left, session);
+			return (session->status);
+		}
+		else
+		{
+			wait(&session->status);
+			if ((session->status == 0 && command->op->type == AMP_AMP) || (session->status == 0 && command->op->type == PIPE_PIPE))
+			{
+				child_id = fork();
+				if (child_id == -1)
+				{
+					perror("fork");
+					return (-1);
+				}
+				else if (child_id == 0)
+				{
+					session->status = command->right->execute(command->right, session);
+					return (session->status);
+				}
+				else
+				{
+					wait(&session->status);
+				}
+			}
+		}
 	}
+	return (session->status);
+}
+static void print_err(const char *lexeme, size_t line, const char *prog)
+{
+	_puts(prog);
+	_puts(": ");
+	_puts(int_to_str(line));
+	_puts(": ");
+	_puts(lexeme);
+	_puts(": not found");
 }
 simple_command_t *get_simple_command(token_node_t *start, token_node_t *end)
 {
@@ -90,6 +146,9 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end)
 	token_t *cmd_token = NULL;
 	token_list_t *args = NULL;
 	simple_command_t *command = NULL, *left = NULL, *right = NULL;
+	bool_t builtin_command = FALSE;
+	char *full_path;
+	char **paths;
 
 	if (start == NULL)
 		return (NULL);
@@ -109,15 +168,26 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end)
 		if (contains_char(start->token->lexeme, '/'))
 		{
 			cmd_token = copy_token(start->token);
-			command->is_builtin = FALSE;
+			builtin_command = FALSE;
 		}
 		else if (is_builtin_cmd(start->token->lexeme))
 		{
-			command->is_builtin = TRUE;
+			builtin_command = TRUE;
 		}
 		else
 		{
-			command->is_builtin = TRUE;
+			builtin_command = FALSE;
+			paths = get_paths(session->env_var_lst);
+			full_path = find_full_path(start->token, paths);
+			if (paths != NULL && *paths != NULL)
+                                       free_str_list(paths);
+		       if (full_path == NULL)
+		       {
+			       print_err(session->sh_name, start->line, start->lexeme);
+			       return (NULL);
+		       }
+		       cmd_token = create_token(full_path, start->line, WORD);
+
 		}
 		start = start->next;
 		if (start != NULL && start != end)
@@ -125,6 +195,9 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end)
 			args = copy_token_list(start, end);
 		}
 		command = create_simple_command(cmd_token, args);
+		command->is_builtin = builtin_command;
+		if (builtin_command == FALSE)
+			command->execute = execute_command;
 	}
 	return (command);
 }

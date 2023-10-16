@@ -4,7 +4,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-static size_t str_list_len(const char **str_list)
+size_t str_list_len(const char **str_list)
 {
     size_t len = 0;
     if (str_list == NULL)
@@ -63,10 +63,21 @@ bool_t is_regular_file(const char *d, const char *f)
     char *tmp = NULL;
     struct stat st;
     bool_t ret = FALSE;
-    if (IS_NULL_OR_EMPTY(d) || IS_NULL_OR_EMPTY(f))
-    return (ret);
-    tmp = concat_str(d, "/");
-    path = concat_str(tmp, f);
+    if (IS_NULL_OR_EMPTY(d) && IS_NULL_OR_EMPTY(f))
+	    return (FALSE);
+    else if (IS_NULL_OR_EMPTY(d))
+    {
+	    path = copy_str(f);
+    }
+    else if (IS_NULL_OR_EMPTY(f))
+    {
+	    path = copy_str(d);
+    }
+    else
+    {
+	    tmp = concat_str(d, "/");
+	    path = concat_str(tmp, f);
+    }
     if (tmp != NULL)
     {
         free(tmp);
@@ -120,6 +131,20 @@ bool_t file_exists(const char *d, const char *f)
         }
     }
     return (FALSE);
+}
+void free_str_list(char **str_list)
+{
+	size_t i;
+
+	if (str_list != NULL && *str_list != NULL)
+	{
+		for (i = 0; str_list[i] != NULL; ++i)
+		{
+			free(str_list[i]);
+		}
+		free(*str_list);
+		*str_list = NULL;
+	}
 }
 char *find_full_path(const char *cmd, const char **paths)
 {
@@ -230,3 +255,90 @@ int str_to_int(const char *str)
                 return (0);
         }
 }
+char *_getenv(const char *name, const char **envp)
+{
+    char *start_w = NULL;
+    size_t i;
+
+    if (envp == NULL)
+        return (NULL);
+    start_w = concat_str(name, "=");
+    for (i = 0; envp[i] != NULL; ++i)
+    {
+        if (start_with(envp[i], start_w))
+        {
+            if (start_w != NULL)
+                free(start_w);
+            return (envp[i]);
+        }
+    }
+    if (start_w != NULL)
+        free(start_w);
+    return (NULL);
+}
+char **get_paths(const char **envp)
+{
+    if (envp == NULL)
+        return (NULL);
+    char *path = _getenv("PATH", envp);
+    if (path != NULL)
+    {
+        return (split_str(path, ':'));
+    }
+    return (NULL);
+}
+/**
+ * is_builtin_cmd - check to see if lex is a builtin command
+ * @lex: command name
+ * Return: True if builtin command otherwise false
+*/
+bool_t is_builtin_cmd(const char *lex)
+{
+        if (lex == NULL)
+                return (FALSE);
+        if (str_cmp(lex, "exit") == 0 || str_cmp (lex, "env") == 0)
+                return (TRUE);
+        else if (str_cmp(lex, "setenv") == 0 || str_cmp(lex, "unsetenv") == 0)
+                return (TRUE);
+        return (FALSE);
+}
+int cd_exec(simple_command_t *command, sh_session_t *session)
+{
+        /*cd*/
+        if (command->args == NULL || command->args->head == NULL)
+        {
+                char *old
+        }
+        else
+        {
+        }
+}
+int env_exec(simple_command_t *command, sh_session_t *session)
+{
+        size_t i;
+
+        for (i = 0; session->env_var_lst[i] != NULL; ++i)
+        {
+                _puts(session->env_var_lst[i]);
+                _putc('\n');
+        }
+        return (0);
+}
+int exit_exec(simple_command_t *command, sh_session_t *session)
+{
+        int exit_code = 0;
+        if (command->args != NULL && command->args->head != NULL)
+        {
+                exit_code = str_to_int(command->args->head->token->lexeme);
+                if (exit_code == 0 && errno == EINVAL)
+                {
+                        char *message = concat_str(session->sh_name, int_to_str(command->cmd->line));
+                        _puts(message);
+                        session->status = 2;
+                        return (2);
+                }
+        }
+        session->status = exit_code;
+        exit(exit_code);
+}
+

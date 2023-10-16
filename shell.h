@@ -3,6 +3,7 @@
 #include "token.h"
 #include "bool.h"
 #include "simple_command.h"
+
 typedef struct sh_session
 {
 	char **env_var_lst;
@@ -10,11 +11,7 @@ typedef struct sh_session
 	char *prompt;
 	int status;
 } sh_session_t;
-typedef struct builtin_cmd
-{
-	char *cmd;
-	int (*execute)(simple_command_t *command, sh_session_t *session);
-};
+typedef int (*exec_cmd)(simple_command_t *command, sh_session_t *session);
 typedef struct alias
 {
 	char *name;
@@ -22,6 +19,13 @@ typedef struct alias
 } alias_t;
 sh_session_t *create_sesssion(const char *argv0, const char **envp);
 void free_session(sh_session_t **session);
+size_t str_list_len(const char **str_list);
+bool_t is_regular_file(const char *d, const char *f);
+bool_t file_exists(const char *d, const char *f);
+bool_t is_valid_num(const char *str);
+int int_len(ssize_t num);
+char *int_to_str(ssize_t num);
+int str_to_int(const char *str);
 void report_error(const char *argv0, token_t *pre_token,
 		const char *lexeme, size_t line, const char c, const char next_char);
 bool_t is_valid_token(const token_t *pre_token, const char c);
@@ -40,6 +44,10 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end);
 int parse_tokens(const token_list_t *lst);
 bool_t is_builtin_cmd(const char *lex);
 char **get_paths(const char **envp);
-char *find_full_path(const char *cmd, const char **paths);
+char *find_full_path(const char *cmd, char **envp);
+char *_getenv(const char *name, const char **envp);
+int cd_exec(simple_command_t *command, sh_session_t *session);
+int env_exec(simple_command_t *command, sh_session_t *session);
+int exit_exec(simple_command_t *command, sh_session_t *session);
 #endif
 
