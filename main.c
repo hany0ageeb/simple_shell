@@ -61,13 +61,16 @@ static int run_prompt(sh_session_t *session)
     while (TRUE)
     {
         _puts(session->prompt);
-        n_read = getline(&line, &n, stdin);
-        if (n_read == -1)
+        n_read = _getline(&line, &n, STDIN_FILENO);
+        if (n_read == -1 && errno != 0)
         {
             return (-1);
         }
-        run_result = run(line, session);
-        free(line);
+        if (line != NULL)
+        {
+            run_result = run(line, session);
+            free(line);
+        }
     }
     return (run_result);
 }
@@ -75,6 +78,7 @@ static int run_file(const char *file, sh_session_t *session)
 {
     int fd = open(file, O_RDONLY);
     char *line = NULL;
+    int run_result = 0;
     size_t n = 0;
     ssize_t n_read;
     if (fd == -1)
@@ -82,11 +86,14 @@ static int run_file(const char *file, sh_session_t *session)
         perror("Open File");
         return (-1);
     }
-    while ((n_read = getline(&line, &n, fd)) != -1)
+    while ((n_read = _getline(&line, &n, fd)) != -1)
     {
-        
+        run_result = run(line, session);
     }
-    if (line != NULL)
+    if (line != NULL && errno == 0)
+    {
+        run_result = run(line, session);
         free(line);
-    return (0);
+    }
+    return (run_result);
 }
