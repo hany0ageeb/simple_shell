@@ -4,6 +4,7 @@
 #include "bool.h"
 #include "simple_command.h"
 #include "session.h"
+#include "alias_list.h"
 #include <sys/types.h>
 
 bool_t is_valid_num(const char *str);
@@ -28,6 +29,7 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end, sh_
 int parse_tokens(const token_list_t *lst, sh_session_t *session);
 char **get_paths(char **envp);
 char *find_full_path(char *cmd, char **paths);
-
+int write_alias(const char *home_dir, const char *f_name, alias_node_t *head);
+alias_node_t *read_alias(const char *home_dir, const char *f_name);
 #endif
 

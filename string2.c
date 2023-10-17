@@ -22,7 +22,7 @@ bool_t start_with(const char *str, const char *start)
         return (FALSE);
     return (TRUE);
 }
-static size_t count_str_list_len(const char *str, const char separator)
+size_t count_str_list_len(const char *str, const char separator)
 {
     size_t len = 0, i;
     if (IS_NULL(str))

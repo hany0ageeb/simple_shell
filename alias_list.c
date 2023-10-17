@@ -68,7 +68,7 @@ void free_alias_list(alias_node_t **head)
                 pre_end = end;
                 end = end->next;
             }
-            free_alias(end->data);
+            free_alias(&end->data);
             free(end);
             if (pre_end == NULL)
                 *head = NULL;

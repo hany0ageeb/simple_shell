@@ -123,6 +123,102 @@ static void test_concat_str()
 	}
 	printf("==>concat_str tests end\n");
 }
+static void test_str_cmp()
+{
+    const char *str1 = "a", *str2 = "b";
+    int ret;
+
+    printf("==>str_cmp function tests\n");
+    printf("==>use case: str_cmp(%s, %s)\n", str1, str2);
+    ret = str_cmp(str1, str2);
+    if (ret >= 0)
+    {
+        printf("Expected [-1] Got [%d]\n", ret);
+    }
+    else
+    {
+        printf("Ok!\n");
+    }
+    printf("==>use case: str_cmp(%s, %s)\n", str2, str1);
+    ret = str_cmp(str2, str1);
+    if (ret <= 0)
+    {
+        printf("Expected [1] GOT [%d]\n", ret);
+    }
+    else
+    {
+        printf("Ok!\n");
+    }
+    printf("==>use case: str_cmp(%s, %s)\n", str1, str1);
+    ret = str_cmp(str1, str2);
+    if (ret != 0)
+    {
+        printf("Expected [0] Got [%d]\n", ret);
+    }
+    else
+    {
+        printf("Ok!\n");
+    }
+    printf("==>str_cmp function tests end\n");
+}
+static void test_start_with()
+{
+    char *str = "HOME=/root";
+    char *start_w = "HOME=";
+    bool_t ret;
+
+    printf("==>start_with function tests\n");
+    printf("==>use case: start_with(%s, %s)\n", str, start_w);
+    ret = start_with(str, start_w);
+    if (ret == FALSE)
+    {
+        printf("Expected [TRUE] Got [FALSE]\n");
+    }
+    else
+    {
+        printf("Ok!\n");
+    }
+    printf("==>start_with function tests end\n");
+}
+static void test_count_str_list_len()
+{
+    char *str1 = "PLA:EPT";
+    char c = ':';
+    size_t count;
+    printf("==>count_str_list_len function tests\n");
+    printf("==>use case: count_str_list_len(%s, %c)\n", str1, c);
+    count = count_str_list_len(str1, c);
+    if (count == 2)
+    {
+        printf("Ok!\n");
+    }
+    else
+    {
+        printf("Expected [2] Got [%lu]", count);
+    }
+    printf("==>count_str_list_len function tests end\n");
+}
+static void test_split_str()
+{
+    char *str1 = "PLA:TTA";
+    char c = ':';
+    char **parts = NULL;
+    int i = 0;
+
+    printf("==>split_str function tests\n");
+    printf("==>use case: split_str(%s, %c)\n", str1, c);
+    parts = split_str(str1, c);
+    if (parts != NULL)
+    {
+        printf("Expected [PLA, TTA] Got [");
+        while (parts[i] != NULL)
+        {
+            printf("%s, ", parts[i]);
+        }
+        printf("\n");
+    }
+    printf("==>split_str function tests end\n");
+}
 static void test_contains_char()
 {
 	const char *str = "PWD";
@@ -154,9 +250,20 @@ int main()
 {
     printf("=======string.c tests====\n");
     test_str_len();
+    printf("===============================\n");
     test_copy_str();
+    printf("================================\n");
     test_concat_str();
+    printf("=================================\n");
     test_sub_str();
+    printf("==================================\n");
+    test_str_cmp();
+    printf("==================================\n");
+    test_start_with();
+    printf("===================================\n");
+    test_count_str_list_len();
+    printf("===================================\n");
+    test_split_str();
     printf("=================================\n");
     test_contains_char();
     printf("===========string.c tests end=====\n");

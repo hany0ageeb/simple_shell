@@ -3,8 +3,10 @@
 #include "string.h"
 #include "alias_list.h"
 #include "env.h"
+#include "shell.h"
 #include <dirent.h>
 #include <errno.h>
+#include <stdlib.h>
 
 static void print_cd_error(const char *sh, size_t line, const char *dir)
 {
