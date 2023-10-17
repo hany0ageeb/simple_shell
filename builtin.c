@@ -1,5 +1,23 @@
 #include "string.h"
 #include "builtin.h"
+#include "env.h"
+#include <dirent.h>
+#include <errno.h>
+static void print_cd_error(const char *sh, size_t line, const char *dir)
+{
+    char *lin = int_to_str(line);
+    _puts(sh);
+    _puts(": ");
+    _puts(lin);
+    _puts(": cd: can't cd to ");
+    _puts(dir);
+    _putc('\n');
+    if (lin != NULL)
+    {
+        free(lin);
+        lin = NULL;
+    }
+}
 /**
  * is_builtin_cmd - check to see if lex is a builtin command
  * @lex: command name
