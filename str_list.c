@@ -1,6 +1,7 @@
 #include "str_list.h"
 #include "string.h"
 #include <stdlib.h>
+#include <stdarg.h>
 
 size_t str_list_len(char **str_list)
 {
@@ -67,17 +68,37 @@ void remove_from_str_list(char **str_list, const char *start)
         str_list = tmp;
     }
 }
+char **create_str_list(size_t len, ...)
+{
+	char **lst = malloc(sizeof(char *) * (len + 1));
+	va_list argptr;
+	size_t i;
+
+	if (lst != NULL)
+	{
+		va_start(argptr, len);
+		for (i = 0; i < len; ++i)
+		{
+			lst[i] = copy_str(va_arg(argptr, char *));
+		}
+		va_end(argptr);
+		lst[len] = NULL;
+	}
+	return (lst);
+}
 void free_str_list(char **str_list)
 {
 	size_t i;
 
-	if (str_list != NULL && *str_list != NULL)
+	if (str_list != NULL)
 	{
 		for (i = 0; str_list[i] != NULL; ++i)
 		{
 			free(str_list[i]);
+			str_list[i] = NULL;
 		}
-		free(*str_list);
-		*str_list = NULL;
+		free(str_list);
+		str_list = NULL;
 	}
 }
+

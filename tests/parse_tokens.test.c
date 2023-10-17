@@ -1,4 +1,5 @@
 #include "../shell.h"
+#include "../session.h"
 #include <stdlib.h>
 #include <stdio.h>
 
