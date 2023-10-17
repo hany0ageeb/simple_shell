@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
+#include <stdio.h>
 
 char *find_full_path(char *cmd, char **paths)
 {

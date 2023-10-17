@@ -1,6 +1,9 @@
 #include "session.h"
 #include "string.h"
+#include "str_list.h"
+#include <errno.h>
 #include <stdlib.h>
+
 sh_session_t *create_session(char *argv0, char **envp)
 {
     sh_session_t *session = malloc(sizeof(sh_session_t));

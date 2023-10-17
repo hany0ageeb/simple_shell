@@ -1,6 +1,9 @@
 #include "shell.h"
 #include "string.h"
 #include "io.h"
+#include "str_list.h"
+#include "builtin.h"
+#include "env.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>

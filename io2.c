@@ -1,5 +1,7 @@
 #include "io.h"
 #include "mem.h"
+#include "string.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <dirent.h>
