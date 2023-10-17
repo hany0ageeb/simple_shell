@@ -1,5 +1,6 @@
 #include "../string.h"
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 static void test_str_len()
 {
@@ -256,6 +257,45 @@ static void test_contains_char()
 	}
 	printf("==>contains_char function tests end\n");
 }
+static void test_str_equals()
+{
+    char *str1 = "Hello";
+    char *str2 = "Hello";
+    int ret;
+
+    printf("==>str_equals function test\n");
+    printf("==>use case: str_equals(%s, %s)", str1, str2);
+    ret = strcmp(str1, str2);
+    if (ret == 0 && str_equals(str1, str2) == TRUE)
+    {
+        printf("Ok!\n");
+    }
+    else
+    {
+        printf("Got [False] Expected [True]\n");
+    }
+    printf("==>str_equals function test end\n");
+}
+static void test_index_of()
+{
+    char *str = "Hello World!";
+    size_t len;
+    int index;
+
+    printf("==>index_of function test\n");
+    len = strlen(str);
+    printf("use case: index_of(%s, 0, %lu, W)\n", str, len - 1);
+    index = index_of(str, 0, len - 1, 'W');
+    if (index == 6)
+    {
+        printf("Ok!\n");
+    }
+    else
+    {
+        printf("Expected [6] Got [%d]", index);
+    }
+    printf("==>index_of function test end\n");
+}
 int main()
 {
     printf("=======string.c tests====\n");
@@ -276,6 +316,8 @@ int main()
     test_split_str();
     printf("=================================\n");
     test_contains_char();
+    printf("==================================\n");
+    test_str_equals();
     printf("===========string.c tests end=====\n");
     exit(EXIT_SUCCESS);
 }
