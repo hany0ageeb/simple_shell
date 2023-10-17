@@ -1,17 +1,30 @@
 #include "string.h"
 #include <stdlib.h>
-
+/**
+ * index_of - index of
+ * @str: string
+ * @lo: low index
+ * @hi: high index
+ * @c: char
+ * Return: index of c first occurrence in str otherwise -1
+ */
 int index_of(const char *str, size_t lo, size_t hi, const char c)
 {
-    size_t i;
+	size_t i;
 
-    for (i = lo; i <= hi && str[i] != '\0'; ++i)
-    {
-        if (str[i] == c)
-        return ((ssize_t)i);
-    }
-    return (-1);
+	for (i = lo; i <= hi && str[i] != '\0'; ++i)
+	{
+		if (str[i] == c)
+			return ((ssize_t)i);
+	}
+	return (-1);
 }
+/**
+ * _str - create a string of length len containg c repeated
+ * @c: char
+ * @len: length
+ * Return: newly created string
+ */
 char *_str(const char c, size_t len)
 {
 	char *str = malloc(sizeof(char) * (len + 1));

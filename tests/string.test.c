@@ -214,8 +214,18 @@ static void test_split_str()
         while (parts[i] != NULL)
         {
             printf("%s, ", parts[i]);
+	    i++;
         }
-        printf("\n");
+        printf("]\n");
+	i = 0;
+	while (parts[i] != NULL)
+	{
+		free(parts[i]);
+		parts[i] = NULL;
+		i++;
+	}
+	free(parts);
+	parts = NULL;
     }
     printf("==>split_str function tests end\n");
 }
