@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <errno.h>
 static int run(const char *src, sh_session_t *session);
 static int run_prompt(sh_session_t *session);
 static int run_file(const char *file, sh_session_t *session);

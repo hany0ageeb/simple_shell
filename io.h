@@ -3,6 +3,7 @@
 #define BUFF_SIZE 1024
 #define FLUSH_BUFF 0
 #include <stddef.h>
+#include <sys/types.h>
 int _fputs(const char *str, int fdout);
 int _puts(const char *str);
 int _fputc(char c, int fdout);

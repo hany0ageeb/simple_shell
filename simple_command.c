@@ -1,5 +1,6 @@
 #include "simple_command.h"
 #include "token.h"
+#include "string.h"
 #include <stdlib.h>
 #include <errno.h>
 

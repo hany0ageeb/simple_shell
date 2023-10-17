@@ -91,10 +91,12 @@ void report_error(const char *argv0, token_t *pre_token,
 					(c == '|' || c == '&' || c == '>' || c == '<' || c == ';'))
 			{
 				tmp = concat_str(pre_token->lexeme, lexeme);
-				printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line, tmp);
+				print_error(argv0, line, tmp, "Syntax error: \"");
+				/*printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line, tmp);*/
 			}
 			else
-				printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line, lexeme);
+				/*printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line, lexeme);*/
+				print_error(argv0, line, lexeme, "Syntax error: \"");
 		}
 	}
 	if (tmp != NULL)
@@ -184,6 +186,7 @@ bool_t scan_tokens(const char *src, token_list_t **lst,
 {
 	size_t start = 0, current = 0, line = 1, len;
 	char c;
+	char *tmp;
 	struct token *pre_token = NULL;
 
 	if (lst == NULL)
@@ -214,7 +217,11 @@ bool_t scan_tokens(const char *src, token_list_t **lst,
 			consume_word_token(src, c, &current, lst, line, start, &pre_token);
 		else
 		{
-			printf("%s: %lu Syntax error: \"%c\" unexpected\n", argv0, line, c);
+			/*printf("%s: %lu Syntax error: \"%c\" unexpected\n", argv0, line, c);*/
+			tmp = _str(c, 1);
+			print_error(argv0, line, tmp, "Syntax error: ");
+			if (tmp != NULL)
+				free(tmp);
 			return (FALSE);
 		}
 		start = current;

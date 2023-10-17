@@ -1,6 +1,8 @@
 #ifndef SIMPLE_COMMAND_H_
 #define SIMPLE_COMMAND_H_
 #include "token.h"
+#include "bool.h"
+struct sh_session;
 typedef struct simple_command
 {
 	struct simple_command *left;
@@ -9,7 +11,7 @@ typedef struct simple_command
 	token_t *op;
 	token_list_t *args;
 	bool_t is_builtin;
-	int (*execute)(const struct simple_command *command, sh_session_t *session);
+	int (*execute)(struct simple_command *command, struct sh_session *session);
 
 } simple_command_t;
 simple_command_t *create_binary_command(simple_command_t *left, simple_command_t *right, token_t *op);

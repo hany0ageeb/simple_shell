@@ -71,6 +71,7 @@ char **split_str(const char *str, const char separator)
         }
         current++;
     }
+    return (str_list);
 }
 /**
  * contains_char - check if str contains c
@@ -108,7 +109,7 @@ bool_t str_equals(const char *str1, const char *str2)
     return (FALSE);
     return (TRUE);
 }
-ssize_t index_of(const char *str, size_t lo, size_t hi, const char c)
+int index_of(const char *str, size_t lo, size_t hi, const char c)
 {
     size_t i;
 
@@ -119,3 +120,17 @@ ssize_t index_of(const char *str, size_t lo, size_t hi, const char c)
     }
     return (-1);
 }
+char *_str(const char c, size_t len)
+{
+	char *str = malloc(sizeof(char) * (len + 1));
+	size_t i;
+
+	if (str != NULL)
+	{
+		for (i = 0; i < len; ++i)
+			str[i] = c;
+		str[len] = '\0';
+	}
+	return (str);
+}
+

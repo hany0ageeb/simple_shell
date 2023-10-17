@@ -61,7 +61,7 @@ static void print_simple_command(simple_command_t *command)
 	}
 	printf("============printed command======\n");
 }
-static void test_get_simple_command()
+static void test_get_simple_command(char **argv, char **envp)
 {
 	const char *src1 = "pwd";
 	const char *src2 = "ls -la tests";
@@ -69,6 +69,8 @@ static void test_get_simple_command()
 	token_list_t *tokens_lst = NULL;
 	token_node_t *start, *end;
 	simple_command_t *command = NULL;
+	sh_session_t *session = NULL;
+	session = create_session(argv[0], envp); 
 
 	printf("==>use case command without arguments\n");
 	if (scan_tokens(src1, &tokens_lst, "$$"))
@@ -77,7 +79,7 @@ static void test_get_simple_command()
 		end = tokens_lst->head;
 		while (end != NULL && end->token->type != SEMI_COLON && end->token->type != NEW_LINE)
 			end = end->next;
-		command = get_simple_command(start, end);
+		command = get_simple_command(start, end, session);
 		if (command != NULL)
 		{
 			print_simple_command(command);
@@ -93,7 +95,7 @@ static void test_get_simple_command()
 		end = tokens_lst->head;
 		while (end != NULL && end->token->type != SEMI_COLON && end->token->type != NEW_LINE)
 			end = end->next;
-		command = get_simple_command(start, end);
+		command = get_simple_command(start, end, session);
 		if (command != NULL)
 		{
 			print_simple_command(command);
@@ -108,7 +110,7 @@ static void test_get_simple_command()
 		start = end = tokens_lst->head;
 		while (end != NULL && end->token->type != SEMI_COLON && end->token->type != NEW_LINE)
 			end = end->next;
-		command = get_simple_command(start, end);
+		command = get_simple_command(start, end, session);
 		if (command != NULL)
 		{
 			print_simple_command(command);
@@ -116,15 +118,17 @@ static void test_get_simple_command()
 		}
 	}
 	free_token_list(&tokens_lst);
+	free_session(&session);
 	printf("====================\n");
 
 }
-int main(void)
+int main(int argc, char **argv, char **envp)
 {
 	printf("=============test parse_tokens.c===============\n");
+	printf("argc = %d\n", argc);
 	test_get_op();
 	printf("================================================\n");
-	test_get_simple_command();
+	test_get_simple_command(argv, envp);
 	printf("=============end test parse_token.c============\n");
 	exit(EXIT_SUCCESS);
 }

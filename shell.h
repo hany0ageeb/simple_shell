@@ -3,7 +3,7 @@
 #include "token.h"
 #include "bool.h"
 #include "simple_command.h"
-
+#include <sys/types.h>
 typedef struct sh_session
 {
 	char **env_var_lst;
@@ -12,7 +12,6 @@ typedef struct sh_session
 	int status;
 	char *alias_file_name;
 } sh_session_t;
-typedef int (*exec_cmd)(simple_command_t *command, sh_session_t *session);
 typedef struct alias
 {
 	char *name;
@@ -26,11 +25,11 @@ typedef struct alias_node
 alias_t *create_alias(char *name, char *value);
 void free_alias(alias_t **a);
 alias_node_t *add_to_alias_list(alias_node_t **head, alias_t *al);
-alias_node_t *add_or_update_alias_list(alias_node_t **head, const char *name, char *value);
+alias_node_t *add_or_update_alias_list(alias_node_t **head, char *name, char *value);
 void free_alias_list(alias_node_t **head);
-sh_session_t *create_sesssion(const char *argv0, const char **envp);
+sh_session_t *create_session(char *argv0, char **envp);
 void free_session(sh_session_t **session);
-size_t str_list_len(const char **str_list);
+size_t str_list_len(char **str_list);
 void free_str_list(char **str_list);
 void add_to_str_list(char **str_list, const char *value);
 void remove_from_str_list(char **str_list, const char *start_with);
@@ -54,14 +53,17 @@ void consume_token(const char *src, char c, token_t **pre_token,
 		token_list_t **lst, size_t *pcurrent, size_t *pline);
 token_node_t *get_op(token_node_t *start, token_node_t *end);
 bool_t scan_tokens(const char *src, token_list_t **lst, const char *argv0);
-simple_command_t *get_simple_command(token_node_t *start, token_node_t *end);
-int parse_tokens(const token_list_t *lst);
+simple_command_t *get_simple_command(token_node_t *start, token_node_t *end, sh_session_t *session);
+int parse_tokens(const token_list_t *lst, sh_session_t *session);
 bool_t is_builtin_cmd(const char *lex);
-char **get_paths(const char **envp);
-char *find_full_path(const char *cmd, const char **paths);
-char *_getenv(const char *name, const char **envp);
+char **get_paths(char **envp);
+char *find_full_path(char *cmd, char **paths);
+char *_getenv(char *name, char **envp);
 int cd_exec(simple_command_t *command, sh_session_t *session);
 int env_exec(simple_command_t *command, sh_session_t *session);
 int exit_exec(simple_command_t *command, sh_session_t *session);
+int alias_exec(simple_command_t *command, sh_session_t *session);
+int setenv_exec(simple_command_t *command, sh_session_t *session);
+int unsetenv_exec(simple_command_t *command, sh_session_t *session);
 #endif
 

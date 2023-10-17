@@ -44,7 +44,7 @@ int _putc(char c)
 int _fputc(char c, int fdout)
 {
 	static char buffer[BUFF_SIZE + 1];
-	static size_t index = -1;
+	static ssize_t index = -1;
 
 	if (c == FLUSH_BUFF || index >= BUFF_SIZE)
 	{

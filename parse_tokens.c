@@ -1,9 +1,11 @@
 #include "shell.h"
 #include "string.h"
+#include "io.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <unistd.h>>
+#include <unistd.h>
 /**
  * get_op - get op
  * @start: start node
@@ -116,11 +118,9 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end, sh_
 	token_list_t *args = NULL;
 	simple_command_t *command = NULL, *left = NULL, *right = NULL;
 	bool_t builtin_command = FALSE;
-	size_t lo, hi, len;
 	char *full_path;
-	char **paths;
-	char *var_name = NULL;
-	char *var_value;
+	char **paths = NULL;
+	char *var_value = NULL;
 
 	if (start == NULL)
 		return (NULL);
@@ -130,8 +130,8 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end, sh_
 		e = start;
 		while (e != NULL && e->next != NULL &&e->next != op_node)
 			e = e->next;
-		left = get_simple_command(start, e);
-		right = get_simple_command(op_node->next, end);
+		left = get_simple_command(start, e, session);
+		right = get_simple_command(op_node->next, end, session);
 		command = create_binary_command(left, right, op_node->token);
 		command->is_builtin = FALSE;
 		command->execute = execute_command;
@@ -151,15 +151,15 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end, sh_
 		{
 			builtin_command = FALSE;
 			paths = get_paths(session->env_var_lst);
-			full_path = find_full_path(start->token, paths);
+			full_path = find_full_path(start->token->lexeme, paths);
 			if (paths != NULL && *paths != NULL)
                                        free_str_list(paths);
 		       if (full_path == NULL)
 		       {
-			       print_not_found_err(session->sh_name, start->line, start->lexeme);
+			       print_not_found_err(session->sh_name, start->token->line, start->token->lexeme);
 			       return (NULL);
 		       }
-		       cmd_token = create_token(full_path, start->line, WORD);
+		       cmd_token = create_token(full_path, start->token->line, WORD);
 
 		}
 		start = start->next;
@@ -231,7 +231,7 @@ int parse_tokens(const token_list_t *lst, sh_session_t *session)
 	{
 		while (current != NULL && current->next != NULL && current->next->token->type != NEW_LINE && current->next->token->type != SEMI_COLON)
 			current = current->next;
-		command = get_simple_command(start, current);
+		command = get_simple_command(start, current, session);
 		if (command != NULL && command->execute != NULL)
 		{
 			execute_result = command->execute(command, session);

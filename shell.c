@@ -5,8 +5,10 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
-size_t str_list_len(const char **str_list)
+#include <errno.h>
+#include <stdio.h>
+#include <unistd.h>
+size_t str_list_len(char **str_list)
 {
     size_t len = 0;
     if (str_list == NULL)
@@ -15,7 +17,7 @@ size_t str_list_len(const char **str_list)
         len++;
     return (len);
 }
-sh_session_t *create_sesssion(const char *argv0, const char **envp)
+sh_session_t *create_session(char *argv0, char **envp)
 {
     sh_session_t *session = malloc(sizeof(sh_session_t));
     size_t i = 0, len = 0;
@@ -54,9 +56,11 @@ void free_session(sh_session_t **session)
         }
         if ((*session)->env_var_lst != NULL)
         {
+		i = 0;
             while ((*session)->env_var_lst[i] != NULL)
             {
                 free((*session)->env_var_lst[i]);
+		i++;
             }
             free((*session)->env_var_lst);
             (*session)->env_var_lst = NULL;
@@ -180,7 +184,7 @@ void remove_from_str_list(char **str_list, const char *start)
         tmp = malloc(sizeof(char *) * (len));
         while (str_list[i] != NULL)
         {
-            if (i != exist_index)
+            if (((int)i) != exist_index)
             {
                 tmp[j] = str_list[i];
                 str_list[i] = NULL;
@@ -210,7 +214,7 @@ void free_str_list(char **str_list)
 		*str_list = NULL;
 	}
 }
-char *find_full_path(const char *cmd, const char **paths)
+char *find_full_path(char *cmd, char **paths)
 {
     size_t i;
     char *full_path = NULL;
@@ -298,6 +302,7 @@ int str_to_int(const char *str)
         size_t len;
         if (is_valid_num(str))
         {
+		len = str_len(str);
                 for (i = len - 1; i >= 0; --i)
                 {
                         if (i == 0 && i == '-')
@@ -307,7 +312,7 @@ int str_to_int(const char *str)
                         else
                         {
                                 value += (str[i] - 48) * w;
-                                w *= 10;
+                                w *= BASE;
                         }
                 }
                 errno = 0;
@@ -319,7 +324,7 @@ int str_to_int(const char *str)
                 return (0);
         }
 }
-char *_getenv(const char *name, const char **envp)
+char *_getenv(char *name, char **envp)
 {
     char *start_w = NULL;
     size_t i;
@@ -342,7 +347,7 @@ char *_getenv(const char *name, const char **envp)
 }
 int _setenv(const char *name, const char *value, bool_t overwrite, char **envp)
 {
-    size_t name_idx = -1;
+    int name_idx = -1;
     size_t i = 0;
     char *tmp;
     char *_name = NULL;
@@ -396,12 +401,14 @@ int _unsetenv(const char *name, char **envp)
         free(start_with);
         start_with = NULL;
     }
+    return (0);
 }
-char **get_paths(const char **envp)
+char **get_paths(char **envp)
 {
+	char *path = NULL;
     if (envp == NULL)
         return (NULL);
-    char *path = _getenv("PATH", envp);
+    path = _getenv("PATH", envp);
     if (path != NULL)
     {
         return (split_str(path, ':'));
@@ -643,7 +650,7 @@ alias_node_t *add_to_alias_list(alias_node_t **head, alias_t *a)
     }
     return (node);
 }
-alias_node_t *add_or_update_alias_list(alias_node_t **head, const char *name, char *value)
+alias_node_t *add_or_update_alias_list(alias_node_t **head,char *name, char *value)
 {
     alias_node_t *v;
     if (IS_NULL_OR_EMPTY(name))
@@ -660,7 +667,7 @@ alias_node_t *add_or_update_alias_list(alias_node_t **head, const char *name, ch
             {
                 if (v->data->value != NULL)
                 free(v->data->value);
-                v->data = value;
+                v->data->value = value;
                 return (v);
             }
         } while(v != NULL);
@@ -796,7 +803,7 @@ int cd_exec(simple_command_t *command, sh_session_t *session)
         }
         else
         {
-            DIR* dir = opendir(command->args->head->token->lexeme);
+            dir = opendir(command->args->head->token->lexeme);
             if (dir == NULL)
             {
                 print_cd_error(session->sh_name, command->cmd->line, command->args->head->token->lexeme);
@@ -816,10 +823,14 @@ int cd_exec(simple_command_t *command, sh_session_t *session)
             }
         }
     }
+    return (0);
 }
 int env_exec(simple_command_t *command, sh_session_t *session)
 {
-    size_t i;
+	size_t i;
+
+	if (command == NULL || command->cmd == NULL || !str_equals(command->cmd->lexeme, "env"))
+		return (-1);
         for (i = 0; session->env_var_lst[i] != NULL; ++i)
         {
             _puts(session->env_var_lst[i]);
