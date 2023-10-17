@@ -80,6 +80,7 @@ bool_t file_exists(const char *d, const char *f)
             }
             dir = readdir(pDir);
         }
+	closedir(pDir);
         if (dir == NULL && errno == EBADF)
         {
             perror("readdir");

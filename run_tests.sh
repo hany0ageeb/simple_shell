@@ -3,7 +3,7 @@ rm -r tests/build
 mkdir tests/build
 clear
 gcc -Wall -Werror -Wextra -pedantic -std=gnu89 tests/mem.test.c mem.c -o tests/build/mem.test.out && valgrind tests/build/mem.test.out
-gcc -Wall -Werror -Wextra -pedantic -std=gnu89 test/io.test.c io.c io2.c -o tests/build/io.test.out && valgrind test/build/io.test.out
+gcc -Wall -Werror -Wextra -pedantic -std=gnu89 io.c io2.c tests/io.test.c string.c string2.c string3.c mem.c -o tests/build/io.test.out && valgrind --leak-check=full tests/build/io.test.out ./ out.txt
 gcc -Wall -Werror -Wextra -pedantic -std=gnu89 tests/string.test.c string.c string2.c string3.c -o tests/build/string.test.out && valgrind tests/build/string.test.out ./ test.txt
 gcc -Werror -Wextra -Wall -std=gnu89 str_list.c tests/str_list.test.c string.c string2.c string3.c -o tests/build/str_list.test.out && valgrind tests/build/str_list.test.out
 gcc -Wall -Werror -Wextra -pedantic -std=gnu89 tests/token.test.c token.c string.c -o tests/build/token.test.out && valgrind tests/build/token.test.out
