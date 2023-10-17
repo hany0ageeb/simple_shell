@@ -318,6 +318,8 @@ int main()
     test_contains_char();
     printf("==================================\n");
     test_str_equals();
+    printf("==================================\n");
+    test_index_of();
     printf("===========string.c tests end=====\n");
     exit(EXIT_SUCCESS);
 }
