@@ -123,6 +123,33 @@ static void test_concat_str()
 	}
 	printf("==>concat_str tests end\n");
 }
+static void test_contains_char()
+{
+	const char *str = "PWD";
+	const char *str1 = "./path/to/file";
+	char c = '/';
+
+	printf("==>contains_str function tests\n");
+	printf("==>use case: str = %s , c = %c\n", str, c);
+	if (contains_char(str, c))
+	{
+		printf("contains_char returned True expected false\n");
+	}
+	else
+	{
+		printf("contains_char returned false expected false\n");
+	}
+	printf("==>use case: str = %s , c = %c\n", str1, c);
+	if (contains_char(str1, c))
+	{
+		printf("Got [TRUE] Expected [TRUE]\n");
+	}
+	else
+	{
+		printf("Got [FALSE] Expected [TRUE]\n");
+	}
+	printf("==>contains_char function tests end\n");
+}
 int main()
 {
     printf("=======string.c tests====\n");
@@ -130,6 +157,8 @@ int main()
     test_copy_str();
     test_concat_str();
     test_sub_str();
+    printf("=================================\n");
+    test_contains_char();
     printf("===========string.c tests end=====\n");
     exit(EXIT_SUCCESS);
 }

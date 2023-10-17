@@ -75,10 +75,12 @@ static void test_get_simple_command(char **argv, char **envp)
 	printf("==>use case command without arguments\n");
 	if (scan_tokens(src1, &tokens_lst, "$$"))
 	{
+		printf("==>src = %s\n", src1);
 		start = tokens_lst->head;
 		end = tokens_lst->head;
 		while (end != NULL && end->token->type != SEMI_COLON && end->token->type != NEW_LINE)
 			end = end->next;
+		printf("start=%s, end=%s\n", start->token->lexeme, start->token->lexeme);
 		command = get_simple_command(start, end, session);
 		if (command != NULL)
 		{

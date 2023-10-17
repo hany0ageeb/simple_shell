@@ -80,7 +80,7 @@ void report_error(const char *argv0, token_t *pre_token,
 	{
 		if (c == '\n')
 		{
-			print_error(argv0, line, pre_token->lexeme, "Syntax error: \"");
+			print_error(argv0, line, pre_token->lexeme, " Syntax error: \"");
 			/*printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line,
 					pre_token->lexeme);*/
 		}
@@ -91,12 +91,12 @@ void report_error(const char *argv0, token_t *pre_token,
 					(c == '|' || c == '&' || c == '>' || c == '<' || c == ';'))
 			{
 				tmp = concat_str(pre_token->lexeme, lexeme);
-				print_error(argv0, line, tmp, "Syntax error: \"");
+				print_error(argv0, line, tmp, " Syntax error: \"");
 				/*printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line, tmp);*/
 			}
 			else
 				/*printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line, lexeme);*/
-				print_error(argv0, line, lexeme, "Syntax error: \"");
+				print_error(argv0, line, lexeme, " Syntax error: \"");
 		}
 	}
 	if (tmp != NULL)
