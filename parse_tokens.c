@@ -149,9 +149,11 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end, sh_
 		}
 		else
 		{
+			printf("Searching for executable\n");
 			builtin_command = FALSE;
 			paths = get_paths(session->env_var_lst);
 			full_path = find_full_path(start->token->lexeme, paths);
+			printf("%s\n", full_path);
 			if (paths != NULL && *paths != NULL)
                                        free_str_list(paths);
 		       if (full_path == NULL)
@@ -160,7 +162,6 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end, sh_
 			       return (NULL);
 		       }
 		       cmd_token = create_token(full_path, start->token->line, WORD);
-
 		}
 		start = start->next;
 		if (start != NULL && start != end)
