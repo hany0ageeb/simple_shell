@@ -152,7 +152,6 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end, sh_
 		}
 		else
 		{
-			printf("Searching for executable\n");
 			builtin_command = FALSE;
 			paths = get_paths(session->env_var_lst);
 			full_path = find_full_path(start->token->lexeme, paths);

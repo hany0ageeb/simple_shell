@@ -11,7 +11,7 @@
 
 char *find_full_path(char *cmd, char **paths)
 {
-    size_t i;
+    size_t i = 0;
     char *full_path = NULL;
     char *tmp = NULL;
     if (IS_NULL_OR_EMPTY(cmd))
