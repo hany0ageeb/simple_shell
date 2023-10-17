@@ -1,4 +1,7 @@
 #include "str_list.h"
+#include "string.h"
+#include <stdlib.h>
+
 size_t str_list_len(char **str_list)
 {
     size_t len = 0;

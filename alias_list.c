@@ -1,6 +1,7 @@
 #include "alias_list.h"
 #include "alias.h"
 #include "io.h"
+#include "string.h"
 #include <stdlib.h>
 alias_node_t *add_to_alias_list(alias_node_t **head, alias_t *a)
 {

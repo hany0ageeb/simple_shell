@@ -1,15 +1,11 @@
 #include "shell.h"
 #include "string.h"
 #include "io.h"
-#include "alias.h"
+#include "env.h"
 #include "alias_list.h"
 #include <stdlib.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <stdio.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 char *find_full_path(char *cmd, char **paths)
 {
@@ -133,8 +129,6 @@ char **get_paths(char **envp)
     }
     return (NULL);
 }
-
-
 int write_alias(const char *home_dir, const char *f_name, alias_node_t *head)
 {
     char *line, *tmp = NULL, *path = NULL;

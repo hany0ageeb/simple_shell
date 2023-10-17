@@ -1,8 +1,11 @@
-#include "string.h"
 #include "builtin.h"
+#include "io.h"
+#include "string.h"
+#include "alias_list.h"
 #include "env.h"
 #include <dirent.h>
 #include <errno.h>
+
 static void print_cd_error(const char *sh, size_t line, const char *dir)
 {
     char *lin = int_to_str(line);

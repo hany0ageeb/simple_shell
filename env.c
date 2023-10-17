@@ -1,6 +1,7 @@
 #include "env.h"
-#include <stddef.h>
-#include <errno.h>
+#include "string.h"
+#include "str_list.h"
+#include <stdlib.h>
 char *_getenv(char *name, char **envp)
 {
     char *start_w = NULL;
