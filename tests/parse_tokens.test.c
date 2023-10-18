@@ -71,6 +71,7 @@ static void test_get_simple_command(char **argv, char **envp)
 	token_node_t *start, *end;
 	simple_command_t *command = NULL;
 	sh_session_t *session = NULL;
+	int ret;
 	session = create_session(argv[0], envp); 
 
 	printf("==>use case: src = %s\n", src1);
@@ -84,6 +85,7 @@ static void test_get_simple_command(char **argv, char **envp)
 		if (command != NULL)
 		{
 			print_simple_command(command);
+			ret = command->execute(command, session);
 			free_simple_command(&command);
 		}
 	}
