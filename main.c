@@ -1,6 +1,7 @@
 #include "bool.h"
 #include "shell.h"
 #include "token.h"
+#include "session.h"
 #include <stdio.h>
 #include "io.h"
 #include <unistd.h>
@@ -12,7 +13,7 @@ static int run_prompt(sh_session_t *session);
 static int run_file(const char *file, sh_session_t *session);
 int main(int argc, char **argv, char **envp)
 {
-    sh_session_t *session = create_sesssion(argv[0], envp);
+    sh_session_t *session = create_session(argv[0], envp);
     int ret;
 
     if (session == NULL)
@@ -44,7 +45,7 @@ static int run(const char *src, sh_session_t *session)
     token_list_t *tok_lst = NULL;
     if (scan_tokens(src, &tok_lst, session->sh_name))
     {
-        parse_tokens(tok_lst);
+        parse_tokens(tok_lst, session);
     }
     else
     {
@@ -54,7 +55,6 @@ static int run(const char *src, sh_session_t *session)
 }
 static int run_prompt(sh_session_t *session)
 {
-    const char *prompt = "#cisfun$";
     char *line;
     size_t n = 0;
     ssize_t n_read, run_result;
@@ -62,7 +62,7 @@ static int run_prompt(sh_session_t *session)
     while (TRUE)
     {
         _puts(session->prompt);
-        n_read = _getline(&line, &n, STDIN_FILENO);
+        n_read = getline(&line, &n, stdin);
         if (n_read == -1 && errno != 0)
         {
             return (-1);
