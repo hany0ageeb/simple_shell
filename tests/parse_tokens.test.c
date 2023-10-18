@@ -66,7 +66,7 @@ static void test_get_simple_command(char **argv, char **envp)
 {
 	const char *src1 = "pwd";
 	const char *src2 = "ls -la tests";
-	const char *src3 = "gcc a.c -o a.out && ./a.out";
+	const char *src3 = "ls && ls -la";
 	token_list_t *tokens_lst = NULL;
 	token_node_t *start, *end;
 	simple_command_t *command = NULL;
@@ -85,7 +85,15 @@ static void test_get_simple_command(char **argv, char **envp)
 		if (command != NULL)
 		{
 			print_simple_command(command);
-			ret = command->execute(command, session);
+			if (command->execute != NULL)
+			{
+				ret = command->execute(command, session);
+				printf("ret=%d\n", ret);
+			}
+			else
+			{
+				printf("?????????????Null Execute function\n");
+			}
 			free_simple_command(&command);
 		}
 	}
@@ -102,6 +110,10 @@ static void test_get_simple_command(char **argv, char **envp)
 		if (command != NULL)
 		{
 			print_simple_command(command);
+			printf("=====>executing command\n");
+			ret = command->execute(command, session);
+			printf("ret=%d\n", ret);
+			printf("=====>end executing command\n");
 			free_simple_command(&command);
 		}
 	}
@@ -117,6 +129,8 @@ static void test_get_simple_command(char **argv, char **envp)
 		if (command != NULL)
 		{
 			print_simple_command(command);
+			ret = command->execute(command, session);
+			printf("ret=%d\n", ret);
 			/*free_simple_command(&command);*/
 		}
 	}
