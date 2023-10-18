@@ -98,6 +98,13 @@ static void test_free_token_list()
 		{
 			printf("lst was set to NULL as expected!\n");
 		}
+		lst = create_token_list();
+		add_token_to_list(lst, create_token("ls", 1, WORD));
+		free_token_list(&lst);
+		if (lst != NULL)
+			printf("Error: free_token_list\n");
+		else
+			printf("lst set to null\n");
 	}
 	else
 	{

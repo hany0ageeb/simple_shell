@@ -4,26 +4,37 @@
 #include <stdlib.h>
 #include <errno.h>
 
+/**
+ * _getenv - mimic getenv function in stdlib.h
+ * @name: env variable name
+ * @envp: env variables
+ * Return: its value or NULL
+ */
 char *_getenv(char *name, char **envp)
 {
-    char *start_w = NULL;
-    size_t i;
+	char *start_w = NULL;
+	char *var_value = NULL;
+	size_t i, len = 0;
+	int index = -1;
 
-    if (envp == NULL)
-        return (NULL);
-    start_w = concat_str(name, "=");
-    for (i = 0; envp[i] != NULL; ++i)
-    {
-        if (start_with(envp[i], start_w))
-        {
-            if (start_w != NULL)
-                free(start_w);
-            return (envp[i]);
-        }
-    }
-    if (start_w != NULL)
-        free(start_w);
-    return (NULL);
+	if (envp == NULL)
+		return (NULL);
+	start_w = concat_str(name, "=");
+	for (i = 0; envp[i] != NULL; ++i)
+	{
+		if (start_with(envp[i], start_w))
+		{
+			len = str_len(envp[i]);
+			index = index_of(envp[i], 0, len - 1, '=');
+			if (index >= 0)
+			{
+				var_value = sub_str(envp[i], index, len - 1);
+			}
+		}
+	}
+	if (start_w != NULL)
+		free(start_w);
+	return (var_value);
 }
 int _setenv(const char *name, const char *value, bool_t overwrite, char **envp)
 {

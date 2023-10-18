@@ -60,14 +60,12 @@ int execute_command(simple_command_t *command, sh_session_t *session)
 	pid_t child_id;
 	int ret = -1;
 	char **args = NULL;
-	size_t i = 0;
 
 	if (command == NULL)
 		return (-1);
 	if (command->op != NULL)
 	{
 		ret = command->left->execute(command->left, session);
-		printf("%s ret %d\n", command->left->cmd->lexeme,ret);
 		if ((ret == 0 && command->op->type == AMP_AMP) ||
 				(ret == -1 && command->op->type == PIPE_PIPE))
 		{
@@ -78,7 +76,10 @@ int execute_command(simple_command_t *command, sh_session_t *session)
 	else
 	{
 		if (command->is_builtin)
+		{
+			printf("built in command\n");
 			return (command->execute(command, session));
+		}
 		child_id = fork();
 		if (child_id == -1)
 		{
@@ -88,11 +89,6 @@ int execute_command(simple_command_t *command, sh_session_t *session)
 		else if (child_id == 0)
 		{
 			args = get_args(command);
-			while (args[i] != NULL)
-			{
-				printf("%s", args[i]);
-				i++;
-			}
 			if (execve(command->cmd->lexeme, args, session->env_var_lst) == -1)
 			{
 				if (args != NULL)
@@ -156,22 +152,38 @@ void replace_variables(token_list_t *args, sh_session_t *session)
 		do {
 			if (v->token->type == DOLLAR_DOLLAR)
 			{
-				free(v->token->lexeme);
+				if (v->token->lexeme != NULL)
+				{
+					free(v->token->lexeme);
+					v->token->lexeme = NULL;
+				}
 				v->token->lexeme = int_to_str(getpid());
+				v->token->type = NUMBER;
 			}
 			else if (v->token->type == DOLLAR_QUESTION)
 			{
-				free(v->token->lexeme);
+				if (v->token->lexeme != NULL)
+				{
+					free(v->token->lexeme);
+					v->token->lexeme = NULL;
+				}
 				v->token->lexeme = int_to_str(session->status);
+				v->token->type = NUMBER;
 			}
 			else if (v->token->type == VARIABLE)
 			{
-				free(v->token->lexeme);
+				if (v->token->lexeme != NULL)
+				{
+					free(v->token->lexeme);
+					v->token->lexeme = NULL;
+				}
+				v->token->lexeme = NULL;
 				var_value = _getenv(v->token->lexeme, session->env_var_lst);
 				if (var_value == NULL)
 					v->token->lexeme = copy_str("");
 				else
-					v->token->lexeme = copy_str(var_value);
+					v->token->lexeme = var_value;
+				v->token->type = WORD;
 			}
 			v = v->next;
 		} while (v != NULL);
@@ -192,7 +204,10 @@ simple_command_t *make_simple_command(token_node_t *start, token_node_t *end, sh
 		builtin_command = FALSE;
 	}
 	else if (is_builtin_cmd(start->token->lexeme))
+	{
+		cmd_token = copy_token(start->token);
 		builtin_command = TRUE;
+	}
 	else
 	{
 		builtin_command = FALSE;
@@ -210,7 +225,7 @@ simple_command_t *make_simple_command(token_node_t *start, token_node_t *end, sh
 		free(full_path);
 		full_path = NULL;
 	}
-	if (start != end)
+	if (start != NULL && start != end)
 	{
 		start = start->next;
 		if (start != NULL && start != end)
@@ -218,10 +233,14 @@ simple_command_t *make_simple_command(token_node_t *start, token_node_t *end, sh
 			args = copy_token_list(start, end);
 		}
 	}
-	replace_variables(args, session);
+	if (args != NULL)
+		replace_variables(args, session);
 	command = create_simple_command(cmd_token, args);
-	command->is_builtin = builtin_command;
-	set_command_execute(command);
+	if (command != NULL)
+	{
+		command->is_builtin = builtin_command;
+		set_command_execute(command);
+	}
 	return (command);
 }
 simple_command_t *get_simple_command(token_node_t *start, token_node_t *end,

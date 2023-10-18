@@ -56,8 +56,12 @@ simple_command_t *create_simple_command(token_t *cmd, token_list_t *args)
 		command->left = NULL;
 		command->right = NULL;
 		command->op = NULL;
+		errno = 0;
 	}
-	errno = 0;
+	else
+	{
+		perror("malloc");
+	}
 	return (command);
 }
 /**

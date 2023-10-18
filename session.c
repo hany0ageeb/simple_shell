@@ -24,6 +24,7 @@ sh_session_t *create_session(char *argv0, char **envp)
 		session->env_var_lst[len] = NULL;
 		for (i = 0; i < len; ++i)
 			session->env_var_lst[i] = copy_str(envp[i]);
+		session->status = 0;
 	}
 	return (session);
 }

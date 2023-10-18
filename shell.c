@@ -88,6 +88,7 @@ char *int_to_str(ssize_t num)
                         num /= 10;
                         i--;
                 } while (num > 0);
+		str[len] = '\0';
         }
         return (str);
 }
@@ -123,28 +124,21 @@ int str_to_int(const char *str)
 char **get_paths(char **envp)
 {
 	char *path = NULL;
-	char **paths;
-	char *tmp;
-	size_t len;
-	int i;
+	char **paths = NULL;
 
 	if (envp == NULL)
 		return (NULL);
 	path = _getenv("PATH", envp);
 	if (path != NULL)
 	{
-		len = str_len(path);
-		i = index_of(path, 0, len - 1, '=');
-		tmp = sub_str(path, i + 1, len - 1);
-		paths = split_str(tmp, ':');
-		if (tmp != NULL)
-		{
-			free(tmp);
-			tmp = NULL;
-		}
-		return (paths);
+		paths = split_str(path, ':');
 	}
-	return (NULL);
+	if (path != NULL)
+	{
+		free(path);
+		path = NULL;
+	}
+	return (paths);
 }
 int write_alias(const char *home_dir, const char *f_name, alias_node_t *head)
 {
