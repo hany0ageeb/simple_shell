@@ -1,5 +1,10 @@
 #ifndef ALIAS_H_
 #define ALIAS_H_
+/**
+ * struct alias - alias
+ * @name: alias name
+ * @value: alias value
+ */
 typedef struct alias
 {
 	char *name;

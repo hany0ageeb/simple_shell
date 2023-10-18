@@ -15,7 +15,7 @@
  * @NUMBER: number token (not used)
  * @GREATER_GREATER: >> token type
  * @DOLLAR_DOLLAR: $$ token
- * @DOLLAR_QUESTIOIN: $? token
+ * @DOLLAR_QUESTION: $? token
  * @VARIABLE: $xyz
 */
 typedef enum token_type
@@ -72,7 +72,8 @@ struct token_node *create_token_node(struct token *token);
 token_node_t *copy_token_node(const token_node_t *src);
 void free_token_node(struct token_node **node);
 struct token_list *create_token_list(void);
-token_list_t *copy_token_list(const token_node_t *head, const token_node_t *end);
+token_list_t *copy_token_list(const token_node_t *head,
+		const token_node_t *end);
 void add_token_to_list(struct token_list *lst, struct token *token);
 void free_token_list(struct token_list **lst);
 #endif

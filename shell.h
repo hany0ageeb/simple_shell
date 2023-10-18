@@ -25,7 +25,8 @@ void consume_token(const char *src, char c, token_t **pre_token,
 		token_list_t **lst, size_t *pcurrent, size_t *pline);
 token_node_t *get_op(token_node_t *start, token_node_t *end);
 bool_t scan_tokens(const char *src, token_list_t **lst, const char *argv0);
-simple_command_t *get_simple_command(token_node_t *start, token_node_t *end, sh_session_t *session);
+simple_command_t *get_simple_command(token_node_t *start, token_node_t *end,
+		sh_session_t *session);
 void replace_variables(token_list_t *args, sh_session_t *session);
 int parse_tokens(const token_list_t *lst, sh_session_t *session);
 char **get_paths(char **envp);

@@ -1,5 +1,13 @@
 #ifndef SESSION_H_
 #define SESSION_H_
+/**
+ * struct sh_session - shell session
+ * @env_var_lst: environ
+ * @sh_name: program name
+ * @prompt: shell prompt
+ * @status: last command exit code!
+ * @alias_file_name: alias file full path
+ */
 typedef struct sh_session
 {
 	char **env_var_lst;
