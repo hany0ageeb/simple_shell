@@ -128,7 +128,7 @@ int setenv_exec(simple_command_t *command, sh_session_t *session)
 		_putc('\n');
 		return (1);
 	}
-	ret = setenv(command->args->head->token->lexeme,
+	ret = _setenv(command->args->head->token->lexeme,
 			command->args->head->next->token->lexeme, TRUE, session->env_var_lst);
 	return (ret);
 }

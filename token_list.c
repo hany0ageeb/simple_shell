@@ -106,7 +106,8 @@ token_node_t *copy_token_node(const token_node_t *src)
  * @end: where copying end!
  * Return: a copy of token list
  */
-token_list_t *copy_token_list(const token_node_t *head, const token_node_t *end)
+token_list_t *copy_token_list(const token_node_t *head,
+		const token_node_t *end)
 {
 	token_list_t *lst = NULL;
 	token_node_t *v;
@@ -130,7 +131,7 @@ token_list_t *copy_token_list(const token_node_t *head, const token_node_t *end)
 		while (head->next != NULL && head != end)
 		{
 			v->next = copy_token_node(head->next);
-			v= v->next;
+			v = v->next;
 			head = head->next;
 		}
 	}

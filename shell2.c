@@ -1,5 +1,7 @@
 #include "shell.h"
 #include "string.h"
+#include <stdlib.h>
+#include <errno.h>
 
 /**
  * is_valid_num - is valid number string

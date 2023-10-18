@@ -1,6 +1,9 @@
 #include "builtin.h"
 #include "io.h"
 #include "env.h"
+#include "string.h"
+#include <errno.h>
+#include <stdlib.h>
 
 /**
  * unsetenv_exec - execute unsetenv
@@ -79,7 +82,7 @@ int exit_exec(simple_command_t *command, sh_session_t *session)
 			if (message != NULL)
 			{
 				free(message);
-				nessage = NULL;
+				message = NULL;
 			}
 			session->status = 2;
 			return (2);
