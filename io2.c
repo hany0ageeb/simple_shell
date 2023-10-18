@@ -54,37 +54,30 @@ ssize_t _getline(char **lineptr, size_t *n, int fdin)
 }
 bool_t file_exists(const char *d, const char *f)
 {
-    DIR *pDir;
-    struct dirent *dir = NULL;
-    if (!(IS_NULL_OR_EMPTY(d)) && !(IS_NULL_OR_EMPTY(f)))
-    {
-        pDir = opendir(d);
-        if (pDir == NULL && (errno == EACCES || errno == EBADF))
-        {
-            perror("open Dir");
-            return (FALSE);
-        }
-        dir = readdir(pDir);
-        while (dir != NULL)
-        {
-            if (str_cmp(dir->d_name, f) == 0)
-            {
-                if (is_regular_file(d, f) == TRUE)
-                {
-                    if (closedir(pDir) == -1)
-                    {
-                        perror("closedir");
-                    }
-                    return (TRUE);
-                }
-            }
-            dir = readdir(pDir);
-        }
-	closedir(pDir);
-        if (dir == NULL && errno == EBADF)
-        {
-            perror("readdir");
-        }
+	DIR *pDir;
+	struct dirent *dir = NULL;
+
+	if (!(IS_NULL_OR_EMPTY(d)) && !(IS_NULL_OR_EMPTY(f)))
+	{
+		pDir = opendir(d);
+		if (pDir == NULL)
+		{
+			return (FALSE);
+		}
+		dir = readdir(pDir);
+		while (dir != NULL)
+		{
+			if (str_cmp(dir->d_name, f) == 0)
+			{
+				if (is_regular_file(d, f) == TRUE)
+				{
+					closedir(pDir);
+					return (TRUE);
+				}
+			}
+			dir = readdir(pDir);
+		}
+		closedir(pDir);
     }
     return (FALSE);
 }

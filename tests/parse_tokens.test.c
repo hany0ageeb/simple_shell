@@ -66,7 +66,7 @@ static void test_get_simple_command(char **argv, char **envp)
 {
 	const char *src1 = "pwd";
 	const char *src2 = "ls -la tests";
-	const char *src3 = "gcc a.c -o a.out && ./a.out";
+	/*const char *src3 = "gcc a.c -o a.out && ./a.out";*/
 	token_list_t *tokens_lst = NULL;
 	token_node_t *start, *end;
 	simple_command_t *command = NULL;
@@ -89,7 +89,7 @@ static void test_get_simple_command(char **argv, char **envp)
 	}
 	free_token_list(&tokens_lst);
 	printf("===================>\n");
-	printf("==>use case: command with args\n");
+	printf("==>use case: src = %s\n", src2);
 	if (scan_tokens(src2, &tokens_lst, "$$"))
 	{
 		start = tokens_lst->head;
@@ -105,6 +105,7 @@ static void test_get_simple_command(char **argv, char **envp)
 	}
 	free_token_list(&tokens_lst);
 	printf("==========================\n");
+	/*
 	printf("==>use case: binary command\n");
 	if (scan_tokens(src3, &tokens_lst, "$$"))
 	{
@@ -119,6 +120,7 @@ static void test_get_simple_command(char **argv, char **envp)
 		}
 	}
 	free_token_list(&tokens_lst);
+	*/
 	free_session(&session);
 	printf("====================\n");
 

@@ -11,29 +11,30 @@
 
 char *find_full_path(char *cmd, char **paths)
 {
-    size_t i = 0;
-    char *full_path = NULL;
-    char *tmp = NULL;
-    if (IS_NULL_OR_EMPTY(cmd))
-    return (NULL);
-    if (paths == NULL || *paths == NULL)
-    return (NULL);
-    while (paths[i] != NULL)
-    {
-        if (file_exists(paths[i], cmd))
-        {
-            tmp = concat_str(paths[i], "/");
-            full_path = concat_str(tmp, cmd);
-            if (tmp != NULL)
-            {
-            free(tmp);
-            tmp = NULL;
-            }
-            return (full_path);
-        }
-        i++;
-    }
-    return (full_path);
+	size_t i = 0;
+	char *full_path = NULL;
+	char *tmp = NULL;
+
+	if (IS_NULL_OR_EMPTY(cmd))
+		return (NULL);
+	if (paths == NULL || *paths == NULL)
+		return (NULL);
+	while (paths[i] != NULL)
+	{
+		if (file_exists(paths[i], cmd))
+		{
+			tmp = concat_str(paths[i], "/");
+			full_path = concat_str(tmp, cmd);
+			if (tmp != NULL)
+			{
+				free(tmp);
+				tmp = NULL;
+			}
+			return (full_path);
+		}
+		i++;
+	}
+	return (full_path);
 }
 bool_t is_valid_num(const char *str)
 {
@@ -122,14 +123,28 @@ int str_to_int(const char *str)
 char **get_paths(char **envp)
 {
 	char *path = NULL;
-    if (envp == NULL)
-        return (NULL);
-    path = _getenv("PATH", envp);
-    if (path != NULL)
-    {
-        return (split_str(path, ':'));
-    }
-    return (NULL);
+	char **paths;
+	char *tmp;
+	size_t len;
+	int i;
+
+	if (envp == NULL)
+		return (NULL);
+	path = _getenv("PATH", envp);
+	if (path != NULL)
+	{
+		len = str_len(path);
+		i = index_of(path, 0, len - 1, '=');
+		tmp = sub_str(path, i + 1, len - 1);
+		paths = split_str(tmp, ':');
+		if (tmp != NULL)
+		{
+			free(tmp);
+			tmp = NULL;
+		}
+		return (paths);
+	}
+	return (NULL);
 }
 int write_alias(const char *home_dir, const char *f_name, alias_node_t *head)
 {
