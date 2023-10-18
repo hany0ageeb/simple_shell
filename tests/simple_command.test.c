@@ -47,6 +47,18 @@ static void test_create_binary_command()
 }
 static void test_free_simple_command()
 {
+	simple_command_t *command;
+	simple_command_t *left;
+	simple_command_t *right;
+	token_t *op;
+
+	left = create_simple_command(create_token("ls", 1, WORD), NULL);
+        right = create_simple_command(create_token("pwd", 1, WORD), NULL);
+        op = create_token("&&", 1, AMP_AMP);
+	printf("==>test free_simple_command function\n");
+	command = create_binary_command(left, right, op);
+	free_simple_command(&command);
+	printf("==>test free_simple_command function end\n");
 }
 int main(void)
 {

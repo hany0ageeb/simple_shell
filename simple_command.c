@@ -4,7 +4,15 @@
 #include <stdlib.h>
 #include <errno.h>
 
-simple_command_t *create_binary_command(simple_command_t *left, simple_command_t *right, token_t *op)
+/**
+ * create_binary_command - create binary command
+ * @left: left operand command
+ * @right: right operand command
+ * @op: operator i.e. && ||
+ * Return: a pointer to created simple_command object
+ */
+simple_command_t *create_binary_command(simple_command_t *left,
+		simple_command_t *right, token_t *op)
 {
 	simple_command_t *command = NULL;
 
@@ -24,6 +32,12 @@ simple_command_t *create_binary_command(simple_command_t *left, simple_command_t
 	}
 	return (command);
 }
+/**
+ * create_simple_command - create a simple command object
+ * @cmd: command token
+ * @args: token list of args
+ * Return: a pointer to created simple_command object
+ */
 simple_command_t *create_simple_command(token_t *cmd, token_list_t *args)
 {
 	simple_command_t *command = NULL;
@@ -45,6 +59,11 @@ simple_command_t *create_simple_command(token_t *cmd, token_list_t *args)
 	errno = 0;
 	return (command);
 }
+/**
+ * free_simple_command - free simple_command object memory
+ * @command: simple_command object
+ * Return: void
+ */
 void free_simple_command(simple_command_t **command)
 {
 	if (command == NULL)
@@ -84,6 +103,11 @@ void free_simple_command(simple_command_t **command)
 	}
 	errno = 0;
 }
+/**
+ * get_args - converts args of simple command to list of strings
+ * @command: simple_command object
+ * Return: args as char**
+ */
 char **get_args(const simple_command_t *command)
 {
 	char **args = NULL;
@@ -108,7 +132,8 @@ char **get_args(const simple_command_t *command)
 		args = malloc(sizeof(char *) * (len + 1));
 		args[0] = copy_str(command->cmd->lexeme);
 		i = 1;
-		node = command->args != NULL && command->args->head != NULL ? command->args->head : NULL;
+		node = command->args != NULL && command->args->head != NULL ?
+			command->args->head : NULL;
 		while (i < len && node != NULL)
 		{
 			args[i] = copy_str(node->token->lexeme);
@@ -118,3 +143,4 @@ char **get_args(const simple_command_t *command)
 	}
 	return (args);
 }
+
