@@ -3,6 +3,12 @@
 #include "io.h"
 #include "string.h"
 #include <stdlib.h>
+/**
+ * add_to_alias_list - add alias to list
+ * @head: head node
+ * @a: alias
+ * Return: newly added node pointer
+ */
 alias_node_t *add_to_alias_list(alias_node_t **head, alias_t *a)
 {
     alias_node_t *node = NULL, *end = NULL;

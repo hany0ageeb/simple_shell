@@ -1,6 +1,13 @@
 #include "mem.h"
 #include <stdlib.h>
 
+/**
+ * _realloc - mimic realloc function
+ * @ptr: pointer
+ * @old_size: old size
+ * @new_size: new size
+ * Return: pointer
+ */
 void *_realloc(void *ptr, size_t old_size, size_t new_size)
 {
 	void *tmp;
@@ -29,7 +36,13 @@ void *_realloc(void *ptr, size_t old_size, size_t new_size)
 		}
 	}
 }
-
+/**
+ * copy_mem - copy memory
+ * @dest: destination
+ * @src: source
+ * @size: size
+ * Return: void
+ */
 void copy_mem(void *dest, const void *src, size_t size)
 {
 	char *src_str, *dest_str;
