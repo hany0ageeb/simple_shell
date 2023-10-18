@@ -113,17 +113,17 @@ void set_command_execute(simple_command_t *command)
 		command->execute = execute_command;
 	else
 	{
-		if (str_equals(cmd_token->lexeme, "exit"))
+		if (str_equals(command->cmd->lexeme, "exit"))
 			command->execute = exit_exec;
-		else if (str_equals(cmd_token->lexeme, "cd"))
+		else if (str_equals(command->cmd->lexeme, "cd"))
 			command->execute = cd_exec;
-		else if (str_equals(cmd_token->lexeme, "setenv"))
+		else if (str_equals(command->cmd->lexeme, "setenv"))
 			command->execute = setenv_exec;
-		else if (str_equals(cmd_token->lexeme, "unsetenv"))
+		else if (str_equals(command->cmd->lexeme, "unsetenv"))
 			command->execute = unsetenv_exec;
-		else if (str_equals(cmd_token->lexeme, "env"))
+		else if (str_equals(command->cmd->lexeme, "env"))
 			command->execute = env_exec;
-		else if (str_equals(cmd_token->lexeme, "alias"))
+		else if (str_equals(command->cmd->lexeme, "alias"))
 			command->execute = alias_exec;
 		else
 			command->execute = NULL;
