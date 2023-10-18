@@ -66,7 +66,7 @@ static void test_get_simple_command(char **argv, char **envp)
 {
 	const char *src1 = "pwd";
 	const char *src2 = "ls -la tests";
-	const char *src3 = "ls && ls -la";
+	const char *src3 = "pwd && ls -la";
 	token_list_t *tokens_lst = NULL;
 	token_node_t *start, *end;
 	simple_command_t *command = NULL;

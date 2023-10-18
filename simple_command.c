@@ -2,6 +2,7 @@
 #include "token.h"
 #include "string.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <errno.h>
 
 /**
@@ -140,6 +141,7 @@ char **get_args(const simple_command_t *command)
 			i++;
 			node = node->next;
 		}
+		args[len] = NULL;
 	}
 	return (args);
 }
