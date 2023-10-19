@@ -195,7 +195,7 @@ simple_command_t *make_simple_command(token_node_t *start, token_node_t *end, sh
 
 	if (contains_char(start->token->lexeme, '/'))
 	{
-		if (access(start->token->lexeme, X_OK))
+		if (access(start->token->lexeme, X_OK) == 0)
 		{
 			cmd_token = copy_token(start->token);
 			builtin_command = FALSE;

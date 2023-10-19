@@ -3,6 +3,7 @@
 #include "string.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <errno.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -56,12 +57,50 @@ ssize_t _getline(char **lineptr, size_t *n, int fdin)
 	}
 	return ((ssize_t)num_read);
 }
+
 /**
  * file_exists - file exists
  * @d: director
  * @f: file
  * Return: TRUE if exists otherwise FALSE
  */
+bool_t file_exists(const char *d, const char *f)
+{
+	char *path = NULL;
+	char *tmp;
+	bool_t ret = FALSE;
+
+	if (IS_NULL_OR_EMPTY(d) && IS_NULL_OR_EMPTY(d))
+		return (FALSE);
+	if (!(IS_NULL_OR_EMPTY(d)))
+	{
+		path = copy_str(d);
+	}
+	if (!(IS_NULL_OR_EMPTY(f)))
+	{
+		if (path != NULL)
+		{
+			tmp = concat_str(path, "/");
+			free(path);
+			path = concat_str(tmp, f);
+			free(tmp);
+		}
+		else
+		{
+			path = copy_str(f);
+		}
+	}
+	if (path != NULL)
+	{
+		if (access(path, X_OK) == 0)
+			ret = TRUE;
+		else
+			ret = FALSE;
+		free(path);
+	}
+	return (ret);
+}
+/*
 bool_t file_exists(const char *d, const char *f)
 {
 	DIR *pDir;
@@ -89,6 +128,7 @@ bool_t file_exists(const char *d, const char *f)
 	}
 	return (FALSE);
 }
+*/
 /**
  * is_regular_file - is regular file
  * @d: directory name
