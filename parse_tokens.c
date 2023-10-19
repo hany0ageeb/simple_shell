@@ -109,16 +109,10 @@ int execute_command(simple_command_t *command, sh_session_t *session)
 	}
 	return (ret);
 }
-static void print_not_found_err(const char *lexeme, size_t line,
-		const char *prog)
+static void print_not_found_err(const char *prog)
 {
 	_puts(prog);
-	_puts(": ");
-	_puts(int_to_str(line));
-	_puts(": ");
-	_puts(lexeme);
-	_puts(": not found");
-	_putc('\n');
+	_puts(": No such file or directory\n");
 }
 void set_command_execute(simple_command_t *command)
 {
@@ -208,8 +202,7 @@ simple_command_t *make_simple_command(token_node_t *start, token_node_t *end, sh
 		}
 		else
 		{
-			print_not_found_err(session->sh_name, start->token->line,
-					start->token->lexeme);
+			print_not_found_err(session->sh_name);
 			return (NULL);
 		}
 	}
@@ -227,8 +220,7 @@ simple_command_t *make_simple_command(token_node_t *start, token_node_t *end, sh
 			free_str_list(paths);
 		if (full_path == NULL)
 		{
-			print_not_found_err(session->sh_name, start->token->line,
-					start->token->lexeme);
+			print_not_found_err(session->sh_name);
 			return (NULL);
 		}
 		cmd_token = create_token(full_path, start->token->line, WORD);
