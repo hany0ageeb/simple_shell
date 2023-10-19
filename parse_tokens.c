@@ -118,6 +118,7 @@ static void print_not_found_err(const char *lexeme, size_t line,
 	_puts(": ");
 	_puts(lexeme);
 	_puts(": not found");
+	_putc('\n');
 }
 void set_command_execute(simple_command_t *command)
 {
@@ -200,8 +201,17 @@ simple_command_t *make_simple_command(token_node_t *start, token_node_t *end, sh
 
 	if (contains_char(start->token->lexeme, '/'))
 	{
-		cmd_token = copy_token(start->token);
-		builtin_command = FALSE;
+		if (access(start->token->lexeme, X_OK))
+		{
+			cmd_token = copy_token(start->token);
+			builtin_command = FALSE;
+		}
+		else
+		{
+			print_not_found_err(session->sh_name, start->token->line,
+					start->token->lexeme);
+			return (NULL);
+		}
 	}
 	else if (is_builtin_cmd(start->token->lexeme))
 	{

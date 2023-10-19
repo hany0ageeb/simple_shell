@@ -43,24 +43,7 @@ int _putc(char c)
  */
 int _fputc(char c, int fdout)
 {
-	static char buffer[BUFF_SIZE + 1];
-	static ssize_t index = -1;
-
-	if (c == FLUSH_BUFF || index >= BUFF_SIZE)
-	{
-		if (index > -1)
-		{
-			buffer[index + 1] = '\0';
-			index = -1;
-			return (_fputs(buffer, fdout));
-		}
-		return (0);
-	}
-	else
-	{
-		buffer[++index] = c;
-		return (1);
-	}
+	return (write(fdout, &c, 1));
 }
 /**
  * _fgetc - mimic fgetc function
