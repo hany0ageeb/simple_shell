@@ -76,21 +76,30 @@ static int run_prompt(sh_session_t *session)
 {
 	char *line;
 	size_t n = 0;
-	ssize_t n_read, run_result;
+	ssize_t n_read = 0, run_result = 0;
 
-	while (TRUE)
+	if (isatty(STDIN_FILENO))
 	{
-		_puts(session->prompt);
-		n_read = getline(&line, &n, stdin);
-		if (n_read == -1 && errno != 0)
+		while (TRUE)
 		{
-			return (-1);
+			_puts(session->prompt);
+			n_read = getline(&line, &n, stdin);
+			if (n_read == -1 && errno != 0)
+			{
+				return (-1);
+			}
+			run_result = run(line, session);
 		}
-		if (line != NULL)
+	}
+	else
+	{
+		n_read = getline(&line, &n, stdin);
+		while (n_read > 0)
 		{
 			run_result = run(line, session);
-			free(line);
+			n_read = getline(&line, &n, stdin);
 		}
+		return (run_result);
 	}
 	return (run_result);
 }
