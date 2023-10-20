@@ -13,17 +13,11 @@
  */
 int unsetenv_exec(simple_command_t *command, sh_session_t *session)
 {
-	char *lin;
 	token_node_t *node = NULL;
 
 	if (command->args == NULL || command->args->head == NULL)
 	{
-		_puts(session->sh_name);
-		_puts(": ");
-		lin = int_to_str(command->cmd->line);
-		_puts(lin);
-		_puts(": unsetenv: too few arguments\n");
-		return (1);
+		return (env_exec(command, session));
 	}
 	node = command->args->head;
 	while (node != NULL)
@@ -43,8 +37,7 @@ int env_exec(simple_command_t *command, sh_session_t *session)
 {
 	size_t i;
 
-	if (command == NULL || command->cmd == NULL
-			|| !str_equals(command->cmd->lexeme, "env"))
+	if (command == NULL || command->cmd == NULL)
 		return (-1);
 	for (i = 0; session->env_var_lst[i] != NULL; ++i)
 	{
