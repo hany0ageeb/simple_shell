@@ -29,6 +29,7 @@ int main(void)
 	const char *src6 = "ls;&&ls;";
 	const char *src7 = "ls";
 	const char *src8 = "echo $$";
+	const char *src9 = "            ls\n";
 	struct token_list *lst = NULL;
 
 	if (scan_tokens(src, &lst, "/bin/sh"))
@@ -76,6 +77,12 @@ int main(void)
 	if (scan_tokens(src8, &lst, "/bin/sh"))
 	{
 		printf("==>src8 = %s\n", src8);
+		print_token_list(lst);
+	}
+	printf("===================================================\n");
+	if (scan_tokens(src9, &lst, "/bin/sh"))
+	{
+		printf("===>src9 = %s\n", src9);
 		print_token_list(lst);
 	}
 	free_token_list(&lst);

@@ -4,7 +4,7 @@
 #include "string.h"
 #include <errno.h>
 #include <stdlib.h>
-
+#include <stdio.h>
 /**
  * unsetenv_exec - execute unsetenv
  * @command: command
@@ -22,8 +22,7 @@ int unsetenv_exec(simple_command_t *command, sh_session_t *session)
 		_puts(": ");
 		lin = int_to_str(command->cmd->line);
 		_puts(lin);
-		_puts(": unsetenv: too few arguments");
-		_putc('\n');
+		_puts(": unsetenv: too few arguments\n");
 		return (1);
 	}
 	node = command->args->head;
@@ -62,7 +61,7 @@ int env_exec(simple_command_t *command, sh_session_t *session)
  */
 int exit_exec(simple_command_t *command, sh_session_t *session)
 {
-	int exit_code = 0;
+	int exit_code = session->status;
 	char *message = NULL;
 	char *tmp = NULL;
 
@@ -87,8 +86,12 @@ int exit_exec(simple_command_t *command, sh_session_t *session)
 			session->status = 2;
 			return (2);
 		}
+		session->status = exit_code;
+		exit(exit_code);
 	}
-	session->status = exit_code;
-	exit(exit_code);
+	else
+	{
+		exit(session->status);
+	}
 }
 
