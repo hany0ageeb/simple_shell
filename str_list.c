@@ -2,6 +2,7 @@
 #include "string.h"
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdio.h>
 /**
  * str_list_len - str list length
  * @str_list: string list
@@ -46,17 +47,17 @@ void add_to_str_list(char ***str_list, const char *value)
  * @str_list: string list
  * @start: start with
  */
-void remove_from_str_list(char **str_list, const char *start)
+void remove_from_str_list(char ***str_list, const char *start)
 {
-	size_t i = 0, len, j = 0;
+	int i = 0, len, j = 0;
 	int exist_index = -1;
 	char **tmp;
 
 	if (IS_NULL_OR_EMPTY(start))
 		return;
-	for (i = 0; str_list[i] != NULL; ++i)
+	for (i = 0; (*str_list)[i] != NULL; ++i)
 	{
-		if (start_with(str_list[i], start))
+		if (start_with((*str_list)[i], start))
 		{
 			exist_index = i;
 			break;
@@ -64,24 +65,25 @@ void remove_from_str_list(char **str_list, const char *start)
 	}
 	if (exist_index >= 0)
 	{
-		len = str_list_len(str_list);
+		len = (int)str_list_len(*str_list);
 		tmp = malloc(sizeof(char *) * (len));
-		while (str_list[i] != NULL)
+		for (i = 0, j = 0; i < len; i++)
 		{
 			if (((int)i) != exist_index)
 			{
-				tmp[j] = str_list[i];
-				str_list[i] = NULL;
+				tmp[j] = (*str_list)[i];
+				(*str_list)[i] = NULL;
+				j++;
 			}
 			else
 			{
-				free(str_list[i]);
-				str_list[i] = NULL;
+				free((*str_list)[i]);
+				(*str_list)[i] = NULL;
 			}
-			i++;
 		}
-		free(str_list);
-		str_list = tmp;
+		tmp[len - 1] = NULL;
+		free(*str_list);
+		*str_list = tmp;
 	}
 }
 /**

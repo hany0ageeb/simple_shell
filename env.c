@@ -96,7 +96,7 @@ int _setenv(const char *name, const char *value, bool_t overwrite, char ***envp)
  * @envp: envp
  * Return: 0 on success
  */
-int _unsetenv(const char *name, char **envp)
+int _unsetenv(const char *name, char ***envp)
 {
 	char *start_with = NULL;
 

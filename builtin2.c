@@ -28,7 +28,7 @@ int unsetenv_exec(simple_command_t *command, sh_session_t *session)
 	node = command->args->head;
 	while (node != NULL)
 	{
-		_unsetenv(node->token->lexeme, session->env_var_lst);
+		_unsetenv(node->token->lexeme, &session->env_var_lst);
 		node = node->next;
 	}
 	return (0);
