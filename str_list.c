@@ -39,7 +39,7 @@ void add_to_str_list(char ***str_list, const char *value)
 	}
 	tmp[i] = copy_str(value);
 	tmp[i + 1] = NULL;
-	free_str_list(*str_list);
+	free_str_list(str_list);
 	*str_list = tmp;
 }
 /**

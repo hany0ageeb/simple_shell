@@ -13,7 +13,7 @@ static void test_get_paths(char **envp)
         {
             printf("%s\n", paths[i]);
         }
-        free_str_list(paths);
+        free_str_list(&paths);
     }
 }
 static void test_find_full_path(char **envp)

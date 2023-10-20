@@ -23,7 +23,7 @@ static void test_create_str_list()
 static void test_free_str_list()
 {
 	char **lst = create_str_list(2, "/root", "/root/simple_shell");
-	free_str_list(lst);
+	free_str_list(&lst);
 }
 int main()
 {

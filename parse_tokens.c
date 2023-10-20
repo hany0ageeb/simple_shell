@@ -92,7 +92,7 @@ int execute_command(simple_command_t *command, sh_session_t *session)
 			if (execve(command->cmd->lexeme, args, session->env_var_lst) == -1)
 			{
 				if (args != NULL)
-					free_str_list(args);
+					free_str_list(&args);
 				perror("execve");
 				return (-1);
 			}
@@ -105,7 +105,7 @@ int execute_command(simple_command_t *command, sh_session_t *session)
 	}
 	if (args != NULL)
 	{
-		free_str_list(args);
+		free_str_list(&args);
 	}
 	return (ret);
 }
@@ -261,7 +261,7 @@ simple_command_t *make_simple_command(token_node_t *start, token_node_t *end, sh
 		paths = get_paths(session->env_var_lst);
 		full_path = find_full_path(start->token->lexeme, paths);
 		if (paths != NULL)
-			free_str_list(paths);
+			free_str_list(&paths);
 		if (full_path == NULL)
 		{
 			print_not_found_err(session->sh_name);

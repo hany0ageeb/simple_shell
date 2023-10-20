@@ -57,7 +57,7 @@ void free_session(sh_session_t **session)
 			free((*session)->alias_file_name);
 			(*session)->alias_file_name = NULL;
 		}
-		free_str_list((*session)->env_var_lst);
+		free_str_list(&(*session)->env_var_lst);
 		free(*session);
 		*session = NULL;
 	}
