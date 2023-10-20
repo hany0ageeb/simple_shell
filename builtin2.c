@@ -56,6 +56,26 @@ int env_exec(simple_command_t *command, sh_session_t *session)
 	}
 	return (0);
 }
+void print_exit_error(const sh_session_t *session, const token_node_t *arg)
+{
+	char *tmp;
+	char *message;
+
+	message = concat_str(session->sh_name, ": ");
+	tmp = concat_str(message, ": exit: Illegal number: ");
+	if (message != NULL)
+	{
+		free(message);
+		message = NULL;
+	}
+	message = concat_str(tmp, arg->token->lexeme);
+	_puts(message);
+	_putc('\n');
+	if (message != NULL)
+		free(message);
+	if (tmp != NULL)
+		free(tmp);
+}
 /**
  * exit_exec - execute exit
  * @command: command
@@ -65,27 +85,13 @@ int env_exec(simple_command_t *command, sh_session_t *session)
 int exit_exec(simple_command_t *command, sh_session_t *session)
 {
 	int exit_code = session->status;
-	char *message = NULL;
-	char *tmp = NULL;
 
 	if (command->args != NULL && command->args->head != NULL)
 	{
 		exit_code = str_to_int(command->args->head->token->lexeme);
 		if (exit_code == 0 && errno == EINVAL)
 		{
-			tmp = int_to_str(command->cmd->line);
-			message = concat_str(session->sh_name, tmp);
-			if (tmp != NULL)
-			{
-				free(tmp);
-				tmp = NULL;
-			}
-			_puts(message);
-			if (message != NULL)
-			{
-				free(message);
-				message = NULL;
-			}
+			print_exit_error(session, command->args->head);
 			session->status = 2;
 			return (2);
 		}
