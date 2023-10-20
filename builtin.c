@@ -148,13 +148,11 @@ int setenv_exec(simple_command_t *command, sh_session_t *session)
  */
 int cd_exec(simple_command_t *command, sh_session_t *session)
 {
-	char *home = NULL, *pwd = NULL, *oldpwd = NULL, *cdpath;
-	char **cdpaths = NULL;
+	char *home = NULL, *pwd = NULL, *oldpwd = NULL;
 	char *dir = NULL;
 	char *tmp = NULL;
-	char *full_path = NULL;
 	int ret = 0;
-	size_t len = 0, i;
+	size_t len = 0;
 
 	pwd = _getenv("PWD", session->env_var_lst);
 	if (command->args != NULL && command->args->head != NULL)
@@ -195,7 +193,7 @@ int cd_exec(simple_command_t *command, sh_session_t *session)
 			ret = _cd(dir, session, pwd);
 		else
 		{
-			print_cd_error(session->sh_name, args->head->token->line, dir);
+			print_cd_error(session->sh_name, command->args->head->token->line, dir);
 			ret = 2;
 		}
 	}

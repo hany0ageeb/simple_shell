@@ -29,7 +29,7 @@ char *_getenv(char *name, char **envp)
 			index = index_of(envp[i], 0, len - 1, '=');
 			if (index >= 0)
 			{
-				var_value = sub_str(envp[i], index, len - 1);
+				var_value = sub_str(envp[i], index + 1, len - 1);
 			}
 		}
 	}

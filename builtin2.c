@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 /**
  * unsetenv_exec - execute unsetenv
  * @command: command
@@ -104,11 +105,11 @@ int _cd(const char *path, sh_session_t *session, const char *pwd)
 	ret = chdir(path);
 	if (ret == 0)
 	{
-		ret = _setenv("OLDPWD", pwd, TRUE, &session->env_var_ls);
+		ret = _setenv("OLDPWD", pwd, TRUE, &session->env_var_lst);
 		if (ret == 0)
 		{
 			getcwd(buffer, 1024);
-			ret = _setenv("PWD", buffer, TRUE, &session->env_var_ls);
+			ret = _setenv("PWD", buffer, TRUE, &session->env_var_lst);
 		}
 	}
 	return (ret);
