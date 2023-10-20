@@ -4,6 +4,7 @@
 #include "io.h"
 #include <stdlib.h>
 #include <errno.h>
+#include <unistd.h>
 void print_error(const char *argv0, size_t line, const char *lexeme, const char *mssg)
 {
 	char *line_str, *tmp, *l;

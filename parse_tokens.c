@@ -67,7 +67,7 @@ int execute_command(simple_command_t *command, sh_session_t *session)
 	{
 		ret = command->left->execute(command->left, session);
 		if ((ret == 0 && command->op->type == AMP_AMP) ||
-				(ret == -1 && command->op->type == PIPE_PIPE))
+				(ret != 0 && command->op->type == PIPE_PIPE))
 		{
 			ret = command->right->execute(command->right, session);
 		}
@@ -137,7 +137,7 @@ void set_command_execute(simple_command_t *command)
 }
 void replace_variables(token_list_t *args, sh_session_t *session)
 {
-	token_node_t *v = NULL;
+	token_node_t *v = NULL, *pre_v = NULL;
 	char *var_value = NULL, *var_name = NULL;
 
 	if (args != NULL && args->head != NULL)
@@ -167,21 +167,34 @@ void replace_variables(token_list_t *args, sh_session_t *session)
 			else if (v->token->type == VARIABLE)
 			{
 				var_name = sub_str(v->token->lexeme, 1, str_len(v->token->lexeme) - 1);
-				if (v->token->lexeme != NULL)
-				{
-					free(v->token->lexeme);
-					v->token->lexeme = NULL;
-				}
-				v->token->lexeme = NULL;
 				var_value = _getenv(var_name, session->env_var_lst);
 				if (var_value == NULL)
-					v->token->lexeme = copy_str("");
+				{
+					if (pre_v != NULL)
+						pre_v->next = v->next;
+					if (v == args->head)
+					{
+						free_token_node(&v);
+						args->head = NULL;
+						break;
+					}
+					else
+					{
+						free_token_node(&v);
+					}
+					v = pre_v;
+				}
 				else
+				{
+					free(v->token->lexeme);
 					v->token->lexeme = var_value;
-				v->token->type = WORD;
+					v->token->type = WORD;
+				}
 				free(var_name);
 			}
-			v = v->next;
+			pre_v = v;
+			if (v != NULL)
+				v = v->next;
 		} while (v != NULL);
 	}
 }
@@ -303,7 +316,7 @@ simple_command_t *get_simple_command(token_node_t *start, token_node_t *end,
 		}
 		left = get_simple_command(start, e, session);
 		right = get_simple_command(op_node->next, end, session);
-		command = create_binary_command(left, right, op_node->token);
+		command = create_binary_command(left, right, copy_token(op_node->token));
 		command->is_builtin = FALSE;
 		command->execute = execute_command;
 	}
