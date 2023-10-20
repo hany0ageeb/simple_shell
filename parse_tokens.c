@@ -98,15 +98,18 @@ int execute_command(simple_command_t *command, sh_session_t *session)
 		}
 		else
 		{
-			wait(&session->status);
-			ret = session->status;
+			waitpid(child_id, &ret, WUNTRACED);
+			if (WIFEXITED(ret))
+			{
+				session->status = WEXITSTATUS(ret);
+			}
 		}
 	}
 	if (args != NULL)
 	{
 		free_str_list(&args);
 	}
-	return (ret);
+	return (session->status);
 }
 static void print_not_found_err(const char *prog)
 {
@@ -347,7 +350,6 @@ int parse_tokens(const token_list_t *lst, sh_session_t *session)
 			if (command != NULL && command->execute != NULL)
 			{
 				execute_result = command->execute(command, session);
-				session->status = execute_result;
 				free_simple_command(&command);
 			}
 			current = current->next;
