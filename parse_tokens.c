@@ -77,7 +77,6 @@ int execute_command(simple_command_t *command, sh_session_t *session)
 	{
 		if (command->is_builtin)
 		{
-			printf("built in command\n");
 			return (command->execute(command, session));
 		}
 		child_id = fork();
@@ -139,7 +138,7 @@ void set_command_execute(simple_command_t *command)
 void replace_variables(token_list_t *args, sh_session_t *session)
 {
 	token_node_t *v = NULL;
-	char *var_value = NULL;
+	char *var_value = NULL, *var_name = NULL;
 
 	if (args != NULL && args->head != NULL)
 	{
@@ -167,18 +166,20 @@ void replace_variables(token_list_t *args, sh_session_t *session)
 			}
 			else if (v->token->type == VARIABLE)
 			{
+				var_name = sub_str(v->token->lexeme, 1, str_len(v->token->lexeme) - 1);
 				if (v->token->lexeme != NULL)
 				{
 					free(v->token->lexeme);
 					v->token->lexeme = NULL;
 				}
 				v->token->lexeme = NULL;
-				var_value = _getenv(v->token->lexeme, session->env_var_lst);
+				var_value = _getenv(var_name, session->env_var_lst);
 				if (var_value == NULL)
 					v->token->lexeme = copy_str("");
 				else
 					v->token->lexeme = var_value;
 				v->token->type = WORD;
+				free(var_name);
 			}
 			v = v->next;
 		} while (v != NULL);
@@ -237,7 +238,7 @@ simple_command_t *make_simple_command(token_node_t *start, token_node_t *end, sh
 	token_t *cmd_token = NULL;
 	token_list_t *args = NULL;
 
-	if (contains_char(start->token->lexeme, '/'))
+	if (contains_char(start->token->lexeme, '/') == TRUE)
 	{
 		if (access(start->token->lexeme, X_OK) == 0)
 		{
@@ -247,6 +248,7 @@ simple_command_t *make_simple_command(token_node_t *start, token_node_t *end, sh
 		else
 		{
 			print_not_found_err(session->sh_name);
+			session->status = 127;
 			return (NULL);
 		}
 	}
@@ -255,7 +257,7 @@ simple_command_t *make_simple_command(token_node_t *start, token_node_t *end, sh
 		cmd_token = copy_token(start->token);
 		builtin_command = TRUE;
 	}
-	else
+	if (contains_char(start->token->lexeme, '/') == FALSE)
 	{
 		builtin_command = FALSE;
 		paths = get_paths(session->env_var_lst);
@@ -265,6 +267,7 @@ simple_command_t *make_simple_command(token_node_t *start, token_node_t *end, sh
 		if (full_path == NULL)
 		{
 			print_not_found_err(session->sh_name);
+			session->status = 127;
 			return (NULL);
 		}
 		cmd_token = create_token(full_path, start->token->line, WORD);
@@ -325,17 +328,22 @@ int parse_tokens(const token_list_t *lst, sh_session_t *session)
 				current->token->type != NEW_LINE &&
 				current->token->type != SEMI_COLON)
 			current = current->next;
-		command = get_simple_command(start, current, session);
-		if (command != NULL && command->execute != NULL)
-		{
-			execute_result = command->execute(command, session);
-			session->status = execute_result;
-			free_simple_command(&command);
-		}
 		if (current != NULL)
 		{
-			start = current->next;
-			current = current->next;
+			command = get_simple_command(start, current, session);
+			if (command != NULL && command->execute != NULL)
+			{
+				execute_result = command->execute(command, session);
+				session->status = execute_result;
+				free_simple_command(&command);
+			}
+			while (current != NULL && (current->token->type == NEW_LINE || current->token->type == SEMI_COLON))
+				current = current->next;
+			if (current != NULL)
+			{
+				start = current->next;
+				current = current->next;
+			}
 		}
 	}
 	return (execute_result);

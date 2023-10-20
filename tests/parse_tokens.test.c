@@ -93,7 +93,8 @@ void test_get_simple_command(char **argv, char **envp)
 	const char *src1 = "pwd";
 	const char *src2 = "ls -la tests";
 	const char *src3 = "pwd && ls";
-	const char *src4 = "exit";
+	const char *src4 = "ls ;\n";
+	const char *src5 = "/bin/ls ;\n";
 	token_list_t *tokens_lst = NULL;
 	token_list_t *lst = NULL;
 	token_node_t *start, *end;
@@ -177,6 +178,22 @@ void test_get_simple_command(char **argv, char **envp)
 			ret = command->execute(command, session);
 			printf("ret=%d\n", ret);
 			free_simple_command(&command);
+		}
+	}
+	printf("============================\n");
+	printf("==>use case: src = %s\n", src5);
+	if (scan_tokens(src5, &lst, "$$"))
+	{
+		start = end = lst->head;
+		while (end != NULL && end->token->type != SEMI_COLON &&end->token->type != NEW_LINE)
+			end = end->next;
+		command = get_simple_command(start, end, session);
+		if (command != NULL)
+		{
+			print_simple_command(command);
+			printf("executing command.....\n");
+			ret = command->execute(command, session);
+			printf("ret=%d\n", ret);
 		}
 	}
 	free_token_list(&lst);

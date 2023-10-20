@@ -61,6 +61,7 @@ static int run(const char *src, sh_session_t *session)
 	{
 		parse_tokens(tok_lst, session);
 		free_token_list(&tok_lst);
+		return (session->status);
 	}
 	else
 	{

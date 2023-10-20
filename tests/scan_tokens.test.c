@@ -29,7 +29,7 @@ int main(void)
 	const char *src6 = "ls;&&ls;";
 	const char *src7 = "ls";
 	const char *src8 = "echo $$";
-	const char *src9 = "            ls\n";
+	const char *src9 = "/bin/ls ;\n";
 	struct token_list *lst = NULL;
 
 	if (scan_tokens(src, &lst, "/bin/sh"))
