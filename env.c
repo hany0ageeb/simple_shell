@@ -2,6 +2,7 @@
 #include "string.h"
 #include "str_list.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <errno.h>
 
 /**
@@ -44,7 +45,7 @@ char *_getenv(char *name, char **envp)
  * @envp: envp
  * Return: 0 on success
  */
-int _setenv(const char *name, const char *value, bool_t overwrite, char **envp)
+int _setenv(const char *name, const char *value, bool_t overwrite, char ***envp)
 {
 	int name_idx = -1;
 	size_t i = 0;
@@ -55,9 +56,9 @@ int _setenv(const char *name, const char *value, bool_t overwrite, char **envp)
 		errno = EINVAL;
 		return (-1);
 	}
-	while (envp[i] != NULL)
+	while ((*envp)[i] != NULL)
 	{
-		if (start_with(envp[i], name) == TRUE)
+		if (start_with((*envp)[i], name) == TRUE)
 		{
 			name_idx = i;
 			break;
@@ -66,15 +67,21 @@ int _setenv(const char *name, const char *value, bool_t overwrite, char **envp)
 	}
 	if (name_idx == -1)
 	{
-		_name = concat_str(name, "=");
+		tmp = concat_str(name, "=");
+		_name = concat_str(tmp, value);
+		if (tmp != NULL)
+		{
+			free(tmp);
+			tmp = NULL;
+		}
 		add_to_str_list(envp, _name);
 		free(_name);
 	}
 	else if (name_idx >= 0 && overwrite == TRUE)
 	{
-		free(envp[i]);
+		free((*envp)[name_idx]);
 		tmp = concat_str(name, "=");
-		envp[i] = concat_str(tmp, value);
+		(*envp)[name_idx] = concat_str(tmp, value);
 		if (tmp != NULL)
 		{
 			free(tmp);

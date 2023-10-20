@@ -110,6 +110,9 @@ int setenv_exec(simple_command_t *command, sh_session_t *session)
 
 	if (command->args == NULL || command->args->head == NULL)
 	{
+		free(command->cmd->lexeme);
+		command->cmd->lexeme = NULL;
+		command->cmd->lexeme = copy_str("env");
 		return (env_exec(command, session));
 	}
 	node = command->args->head;
@@ -129,7 +132,7 @@ int setenv_exec(simple_command_t *command, sh_session_t *session)
 		return (1);
 	}
 	ret = _setenv(command->args->head->token->lexeme,
-			command->args->head->next->token->lexeme, TRUE, session->env_var_lst);
+			command->args->head->next->token->lexeme, TRUE, &session->env_var_lst);
 	return (ret);
 }
 /**
@@ -151,8 +154,8 @@ int cd_exec(simple_command_t *command, sh_session_t *session)
 			chdir(home);
 			pwd = _getenv("PWD", session->env_var_lst);
 			if (pwd != NULL)
-				_setenv("OLDPWD", pwd, TRUE, session->env_var_lst);
-			_setenv("PWD", home, TRUE, session->env_var_lst);
+				_setenv("OLDPWD", pwd, TRUE, &session->env_var_lst);
+			_setenv("PWD", home, TRUE, &session->env_var_lst);
 			free(home);
 		}
 	}
@@ -165,10 +168,10 @@ int cd_exec(simple_command_t *command, sh_session_t *session)
 			if (oldpwd != NULL)
 			{
 				chdir(oldpwd);
-				_setenv("PWD", oldpwd, TRUE, session->env_var_lst);
+				_setenv("PWD", oldpwd, TRUE, &session->env_var_lst);
 				if (pwd != NULL)
 				{
-					_setenv("OLDPWD", pwd, TRUE, session->env_var_lst);
+					_setenv("OLDPWD", pwd, TRUE, &session->env_var_lst);
 				}
 			}
 		}
@@ -187,10 +190,10 @@ int cd_exec(simple_command_t *command, sh_session_t *session)
 				dir = NULL;
 				oldpwd = _getenv("PWD", session->env_var_lst);
 				_setenv("PWD", command->args->head->token->lexeme, TRUE,
-						session->env_var_lst);
+						&session->env_var_lst);
 				if (oldpwd != NULL)
 				{
-					_setenv("OLDPWD", oldpwd, TRUE, session->env_var_lst);
+					_setenv("OLDPWD", oldpwd, TRUE, &session->env_var_lst);
 					free(oldpwd);
 				}
 			}

@@ -22,24 +22,24 @@ size_t str_list_len(char **str_list)
  * @str_list: string list
  * @value: string to add
  */
-void add_to_str_list(char **str_list, const char *value)
+void add_to_str_list(char ***str_list, const char *value)
 {
 	size_t len, i = 0;
 	char **tmp = NULL;
 
 	if (IS_NULL_OR_EMPTY(value))
 		return;
-	len = str_list_len(str_list);
+	len = str_list_len(*str_list);
 	tmp = malloc(sizeof(char *) * (len + 2));
-	while (str_list[i] != NULL)
+	while ((*str_list)[i] != NULL)
 	{
-		tmp[i] = copy_str(str_list[i]);
+		tmp[i] = copy_str((*str_list)[i]);
 		i++;
 	}
 	tmp[i] = copy_str(value);
 	tmp[i + 1] = NULL;
-	free_str_list(str_list);
-	str_list = tmp;
+	free_str_list(*str_list);
+	*str_list = tmp;
 }
 /**
  * remove_from_str_list - remove from str list
