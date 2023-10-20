@@ -39,7 +39,7 @@ void print_error(const char *argv0, size_t line, const char *lexeme, const char 
 		free(line_str);
 		line_str = NULL;
 	}
-	_puts(tmp);
+	_fputs(tmp, STDERR_FILENO);
 	if (tmp != NULL)
 	{
 		free(tmp);

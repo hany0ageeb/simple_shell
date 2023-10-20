@@ -110,8 +110,8 @@ int execute_command(simple_command_t *command, sh_session_t *session)
 }
 static void print_not_found_err(const char *prog)
 {
-	_puts(prog);
-	_puts(": No such file or directory\n");
+	_fputs(prog, STDERR_FILENO);
+	_fputs(": No such file or directory\n", STDERR_FILENO);
 }
 void set_command_execute(simple_command_t *command)
 {

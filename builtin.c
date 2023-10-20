@@ -19,12 +19,12 @@ static void print_cd_error(const char *sh, size_t line, const char *dir)
 {
 	char *lin = int_to_str(line);
 
-	_puts(sh);
-	_puts(": ");
-	_puts(lin);
-	_puts(": cd: can't cd to ");
-	_puts(dir);
-	_putc('\n');
+	_fputs(sh, STDERR_FILENO);
+	_fputs(": ", STDERR_FILENO);
+	_fputs(lin, STDERR_FILENO);
+	_fputs(": cd: can't cd to ", STDERR_FILENO);
+	_fputs(dir, STDERR_FILENO);
+	_fputc('\n', STDERR_FILENO);
 	if (lin != NULL)
 	{
 		free(lin);
@@ -123,17 +123,17 @@ int setenv_exec(simple_command_t *command, sh_session_t *session)
 	}
 	if (len > 2)
 	{
-		_puts(session->sh_name);
-		_puts(": ");
+		_fputs(session->sh_name, STDERR_FILENO);
+		_fputs(": ", STDERR_FILENO);
 		lin = int_to_str(command->cmd->line);
-		_puts(lin);
+		_fputs(lin, STDERR_FILENO);
 		if (lin != NULL)
 		{
 			free(lin);
 			lin = NULL;
 		}
-		_puts(": setenv: too many arguments");
-		_putc('\n');
+		_fputs(": setenv: too many arguments", STDERR_FILENO);
+		_fputc('\n', STDERR_FILENO);
 		return (1);
 	}
 	ret = _setenv(command->args->head->token->lexeme,

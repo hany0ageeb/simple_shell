@@ -63,8 +63,8 @@ void print_exit_error(const sh_session_t *session, const token_node_t *arg)
 		message = NULL;
 	}
 	message = concat_str(tmp, arg->token->lexeme);
-	_puts(message);
-	_putc('\n');
+	_fputs(message, STDERR_FILENO);
+	_putc('\n', STDERR_FILENO);
 	if (message != NULL)
 		free(message);
 	if (tmp != NULL)
