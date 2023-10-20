@@ -96,4 +96,20 @@ int exit_exec(simple_command_t *command, sh_session_t *session)
 		exit(session->status);
 	}
 }
+int _cd(const char *path, sh_session_t *session, const char *pwd)
+{
+	int ret = 0;
+	char buffer[1024];
 
+	ret = chdir(path);
+	if (ret == 0)
+	{
+		ret = _setenv("OLDPWD", pwd, TRUE, &session->env_var_ls);
+		if (ret == 0)
+		{
+			getcwd(buffer, 1024);
+			ret = _setenv("PWD", buffer, TRUE, &session->env_var_ls);
+		}
+	}
+	return (ret);
+}

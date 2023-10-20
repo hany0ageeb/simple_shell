@@ -38,3 +38,14 @@ char *_str(const char c, size_t len)
 	}
 	return (str);
 }
+bool_t end_with_char(const char *str, const char c)
+{
+	size_t len;
+
+	if (IS_NULL_OR_EMPTY(str))
+		return (FALSE);
+	len = str_len(str);
+	if (str[len - 1] == c)
+		return (TRUE);
+	return (FALSE);
+}

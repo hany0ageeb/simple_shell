@@ -15,5 +15,6 @@ int _fgetc(int fdin);
 ssize_t _getline(char **lineptr, size_t *n, int fdin);
 bool_t file_exists(const char *d, const char *f);
 bool_t is_regular_file(const char *d, const char *f);
+char *dir_exists(const char *path, const char *dir);
 #endif
 

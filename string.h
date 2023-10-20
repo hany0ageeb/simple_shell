@@ -17,4 +17,6 @@ bool_t contains_char(const char *str, const char c);
 bool_t str_equals(const char *str1, const char *str2);
 int index_of(const char *str, size_t lo, size_t hi, const char c);
 char *_str(const char c, size_t len);
+bool_t end_with_char(const char *str, const char c);
 #endif
+

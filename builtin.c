@@ -127,6 +127,11 @@ int setenv_exec(simple_command_t *command, sh_session_t *session)
 		_puts(": ");
 		lin = int_to_str(command->cmd->line);
 		_puts(lin);
+		if (lin != NULL)
+		{
+			free(lin);
+			lin = NULL;
+		}
 		_puts(": setenv: too many arguments");
 		_putc('\n');
 		return (1);
@@ -143,62 +148,65 @@ int setenv_exec(simple_command_t *command, sh_session_t *session)
  */
 int cd_exec(simple_command_t *command, sh_session_t *session)
 {
-	char *home = NULL, *pwd = NULL, *oldpwd = NULL;
-	DIR *dir = NULL;
+	char *home = NULL, *pwd = NULL, *oldpwd = NULL, *cdpath;
+	char **cdpaths = NULL;
+	char *dir = NULL;
+	char *tmp = NULL;
+	char *full_path = NULL;
+	int ret = 0;
+	size_t len = 0, i;
 
-	if (command->args == NULL || command->args->head == NULL)
+	pwd = _getenv("PWD", session->env_var_lst);
+	if (command->args != NULL && command->args->head != NULL)
+	{
+		dir = command->args->head->token->lexeme;
+		len = str_len(dir);
+	}
+	if (dir == NULL || str_equals(dir, "~") == TRUE)
 	{
 		home = _getenv("HOME", session->env_var_lst);
-		if (home != NULL)
-		{
-			chdir(home);
-			pwd = _getenv("PWD", session->env_var_lst);
-			if (pwd != NULL)
-				_setenv("OLDPWD", pwd, TRUE, &session->env_var_lst);
-			_setenv("PWD", home, TRUE, &session->env_var_lst);
-			free(home);
-		}
+		if (home == NULL)
+			ret = 1;
+		else if (home[0] == '\0')
+			ret = 0;
+		else
+			ret = _cd(home, session, pwd);
 	}
+	else if (str_equals(dir, "-") == TRUE)
+	{
+		oldpwd = _getenv("OLDPWD", session->env_var_lst);
+		if (oldpwd == NULL)
+			ret = 1;
+		else if (oldpwd[0] == '\0')
+			ret = 0;
+		else
+			ret = _cd(oldpwd, session, pwd);
+	}
+	else if (str_equals(dir, ".") || str_equals(dir, ".."))
+		ret = _cd(dir, session, pwd);
 	else
 	{
-		if (str_cmp(command->args->head->token->lexeme, "-") == 0)
+		if (dir[len - 1] != '/')
 		{
-			oldpwd = _getenv("OLDPWD", session->env_var_lst);
-			pwd = _getenv("PWD", session->env_var_lst);
-			if (oldpwd != NULL)
-			{
-				chdir(oldpwd);
-				_setenv("PWD", oldpwd, TRUE, &session->env_var_lst);
-				if (pwd != NULL)
-				{
-					_setenv("OLDPWD", pwd, TRUE, &session->env_var_lst);
-				}
-			}
+			tmp = concat_str(dir, "/");
+			dir = tmp;
 		}
+		if (access(dir, F_OK) == 0)
+			ret = _cd(dir, session, pwd);
 		else
 		{
-			dir = opendir(command->args->head->token->lexeme);
-			if (dir == NULL)
-			{
-				print_cd_error(session->sh_name, command->cmd->line,
-						command->args->head->token->lexeme);
-				return (2);
-			}
-			else
-			{
-				closedir(dir);
-				dir = NULL;
-				oldpwd = _getenv("PWD", session->env_var_lst);
-				_setenv("PWD", command->args->head->token->lexeme, TRUE,
-						&session->env_var_lst);
-				if (oldpwd != NULL)
-				{
-					_setenv("OLDPWD", oldpwd, TRUE, &session->env_var_lst);
-					free(oldpwd);
-				}
-			}
+			print_cd_error(session->sh_name, args->head->token->line, dir);
+			ret = 2;
 		}
 	}
-	return (0);
+	if (home != NULL)
+		free(home);
+	if (pwd != NULL)
+		free(pwd);
+	if (oldpwd != NULL)
+		free(oldpwd);
+	if (tmp != NULL)
+		free(tmp);
+	return (ret);
 }
 

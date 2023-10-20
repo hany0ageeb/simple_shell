@@ -330,6 +330,7 @@ int parse_tokens(const token_list_t *lst, sh_session_t *session)
 		{
 			execute_result = command->execute(command, session);
 			session->status = execute_result;
+			free_simple_command(&command);
 		}
 		if (current != NULL)
 		{

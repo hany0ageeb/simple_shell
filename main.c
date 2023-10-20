@@ -60,6 +60,7 @@ static int run(const char *src, sh_session_t *session)
 	if (scan_tokens(src, &tok_lst, session->sh_name))
 	{
 		parse_tokens(tok_lst, session);
+		free_token_list(&tok_lst);
 	}
 	else
 	{

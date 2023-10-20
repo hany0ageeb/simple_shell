@@ -113,19 +113,19 @@ char **create_str_list(size_t len, ...)
  * free_str_list - free string list
  * @str_list: string list
  */
-void free_str_list(char **str_list)
+void free_str_list(char ***str_list)
 {
 	size_t i;
 
-	if (str_list != NULL)
+	if ((*str_list) != NULL)
 	{
-		for (i = 0; str_list[i] != NULL; ++i)
+		for (i = 0; (*str_list)[i] != NULL; ++i)
 		{
-			free(str_list[i]);
-			str_list[i] = NULL;
+			free((*str_list)[i]);
+			(*str_list)[i] = NULL;
 		}
-		free(str_list);
-		str_list = NULL;
+		free(*str_list);
+		*str_list = NULL;
 	}
 }
 

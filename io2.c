@@ -100,6 +100,55 @@ bool_t file_exists(const char *d, const char *f)
 	}
 	return (ret);
 }
+/**
+ * dir_exists - concat path with dir adding / and check for existance
+ * @path: from cd paths
+ * @dir: dir name
+ * Return: TRUE if path/dir/ do exists otherwise FALSE
+ */
+char *dir_exists(const char *path, const char *dir)
+{
+	char *_path = NULL;
+	char *_dir = NULL;
+	char *full_path = NULL;
+	bool_t ret = FALSE;
+
+	if (IS_NULL_OR_EMPTY(path) && IS_NULL_OR_EMPTY(dir))
+		return (NULL);
+	if (IS_NULL_OR_EMPTY(path) && start_with(dir, "/") == FALSE)
+		_path = copy_str("./");
+	else if (IS_NULL_OR_EMPTY(path))
+		_path = copy_str(".");
+	else if (end_with_char(path, '/') == FALSE && start_with(dir, "/") == FALSE)
+		_path = concat_str(path, "/");
+	else
+		_path = copy_str(path);
+	if (end_with_char(dir, '/') == FALSE)
+		_dir = concat_str(dir, "/");
+	else if (!(IS_NULL_OR_EMPTY(dir)))
+		_dir = copy_str(dir);
+	full_path = concat_str(_path, _dir);
+	if (access(full_path, F_OK) == 0)
+		ret = TRUE;
+	else
+		ret = FALSE;
+	if (_path != NULL)
+	{
+		free(_path);
+		_path = NULL;
+	}
+	if (_dir != NULL)
+	{
+		free(_dir);
+		_dir = NULL;
+	}
+	if (full_path != NULL && ret == FALSE)
+	{
+		free(full_path);
+		full_path = NULL;
+	}
+	return (full_path);
+}
 /*
 bool_t file_exists(const char *d, const char *f)
 {
