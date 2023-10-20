@@ -257,7 +257,7 @@ simple_command_t *make_simple_command(token_node_t *start, token_node_t *end, sh
 		cmd_token = copy_token(start->token);
 		builtin_command = TRUE;
 	}
-	if (contains_char(start->token->lexeme, '/') == FALSE)
+	else
 	{
 		builtin_command = FALSE;
 		paths = get_paths(session->env_var_lst);
@@ -337,13 +337,10 @@ int parse_tokens(const token_list_t *lst, sh_session_t *session)
 				session->status = execute_result;
 				free_simple_command(&command);
 			}
+			current = current->next;
 			while (current != NULL && (current->token->type == NEW_LINE || current->token->type == SEMI_COLON))
 				current = current->next;
-			if (current != NULL)
-			{
-				start = current->next;
-				current = current->next;
-			}
+			start = current;
 		}
 	}
 	return (execute_result);
