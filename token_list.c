@@ -116,7 +116,6 @@ token_list_t *copy_token_list(const token_node_t *head,
 		return (NULL);
 	lst = create_token_list();
 	lst->head = copy_token_node(head);
-	v = lst->head;
 	if (end == NULL)
 	{
 		while (head->next != NULL)
@@ -128,7 +127,7 @@ token_list_t *copy_token_list(const token_node_t *head,
 	}
 	else
 	{
-		while (head->next != NULL && head != end)
+		while (head->next != NULL && head != end->next)
 		{
 			v->next = copy_token_node(head->next);
 			v = v->next;

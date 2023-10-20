@@ -134,6 +134,7 @@ void test_get_simple_command(char **argv, char **envp)
 		end = tokens_lst->head;
 		while (end != NULL && end->token->type != SEMI_COLON && end->token->type != NEW_LINE)
 			end = end->next;
+		printf("=====>%s\t%s<======\n", start->token->lexeme, end != NULL ? end->token->lexeme : "NIL");
 		command = get_simple_command(start, end, session);
 		if (command != NULL)
 		{

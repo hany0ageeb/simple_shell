@@ -184,6 +184,50 @@ void replace_variables(token_list_t *args, sh_session_t *session)
 		} while (v != NULL);
 	}
 }
+bool_t is_valid_token_arg(const token_t *token)
+{
+	if (token == NULL)
+		return (FALSE);
+	if (token->type == SEMI_COLON || token->type == NEW_LINE)
+		return (FALSE);
+	if (token->type == WORD || token->type == NUMBER)
+		return (TRUE);
+	if (token->type == DOLLAR_DOLLAR || token->type == DOLLAR_QUESTION)
+		return (TRUE);
+	if (token->type == VARIABLE)
+		return (TRUE);
+	return (FALSE);
+}
+token_list_t *get_args_list(token_node_t *start, token_node_t *end)
+{
+	token_list_t *args = NULL;
+	token_node_t *node = NULL;
+
+	if (start == NULL)
+		return (NULL);
+	if (start == end)
+		return (NULL);
+	start = start->next;
+	if (start == NULL || is_valid_token_arg(start->token) == FALSE)
+		return (NULL);
+	args = create_token_list();
+	args->head = copy_token_node(start);
+	if (start == end)
+		return (args);
+	start = start->next;
+	node = args->head;
+	while (start != NULL && start != end && is_valid_token_arg(start->token))
+	{
+		node->next = copy_token_node(start);
+		node = node->next;
+		start = start->next;
+	}
+	if (start != NULL && is_valid_token_arg(start->token))
+	{
+		node->next = copy_token_node(start);
+	}
+	return (args);
+}
 simple_command_t *make_simple_command(token_node_t *start, token_node_t *end, sh_session_t *session)
 {
 	simple_command_t *command = NULL;
@@ -227,14 +271,7 @@ simple_command_t *make_simple_command(token_node_t *start, token_node_t *end, sh
 		free(full_path);
 		full_path = NULL;
 	}
-	if (start != NULL && start != end)
-	{
-		start = start->next;
-		if (start != NULL && start != end)
-		{
-			args = copy_token_list(start, end);
-		}
-	}
+	args = get_args_list(start, end);
 	if (args != NULL)
 		replace_variables(args, session);
 	command = create_simple_command(cmd_token, args);
@@ -284,9 +321,9 @@ int parse_tokens(const token_list_t *lst, sh_session_t *session)
 	start = current = lst->head;
 	while (current != NULL)
 	{
-		while (current != NULL && current->next != NULL &&
-				current->next->token->type != NEW_LINE &&
-				current->next->token->type != SEMI_COLON)
+		while (current != NULL &&
+				current->token->type != NEW_LINE &&
+				current->token->type != SEMI_COLON)
 			current = current->next;
 		command = get_simple_command(start, current, session);
 		if (command != NULL && command->execute != NULL)
@@ -294,10 +331,10 @@ int parse_tokens(const token_list_t *lst, sh_session_t *session)
 			execute_result = command->execute(command, session);
 			session->status = execute_result;
 		}
-		if (current != NULL && current->next != NULL)
+		if (current != NULL)
 		{
-			start = current->next->next;
-			current = current->next->next;
+			start = current->next;
+			current = current->next;
 		}
 	}
 	return (execute_result);
