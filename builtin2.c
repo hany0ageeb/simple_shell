@@ -48,8 +48,11 @@ int env_exec(simple_command_t *command, sh_session_t *session)
 		return (-1);
 	for (i = 0; session->env_var_lst[i] != NULL; ++i)
 	{
-		_puts(session->env_var_lst[i]);
-		_putc('\n');
+		if (start_with(session->env_var_lst[i], "_=") == FALSE)
+		{
+			_puts(session->env_var_lst[i]);
+			_putc('\n');
+		}
 	}
 	return (0);
 }
