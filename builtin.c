@@ -148,9 +148,7 @@ int setenv_exec(simple_command_t *command, sh_session_t *session)
  */
 int cd_exec(simple_command_t *command, sh_session_t *session)
 {
-	char *home = NULL, *pwd = NULL, *oldpwd = NULL;
-	char *dir = NULL;
-	char *tmp = NULL;
+	char *pwd = NULL, *dir = NULL, *tmp = NULL;
 	int ret = 0;
 	size_t len = 0;
 
@@ -161,25 +159,9 @@ int cd_exec(simple_command_t *command, sh_session_t *session)
 		len = str_len(dir);
 	}
 	if (dir == NULL || str_equals(dir, "~") == TRUE)
-	{
-		home = _getenv("HOME", session->env_var_lst);
-		if (home == NULL)
-			ret = 1;
-		else if (home[0] == '\0')
-			ret = 0;
-		else
-			ret = _cd(home, session, pwd);
-	}
+		ret = _cd_home(session, pwd);
 	else if (str_equals(dir, "-") == TRUE)
-	{
-		oldpwd = _getenv("OLDPWD", session->env_var_lst);
-		if (oldpwd == NULL)
-			ret = 1;
-		else if (oldpwd[0] == '\0')
-			ret = 0;
-		else
-			ret = _cd(oldpwd, session, pwd);
-	}
+		ret = _cd_oldpwd(session, pwd);
 	else if (str_equals(dir, ".") || str_equals(dir, ".."))
 		ret = _cd(dir, session, pwd);
 	else
@@ -197,12 +179,8 @@ int cd_exec(simple_command_t *command, sh_session_t *session)
 			ret = 2;
 		}
 	}
-	if (home != NULL)
-		free(home);
 	if (pwd != NULL)
 		free(pwd);
-	if (oldpwd != NULL)
-		free(oldpwd);
 	if (tmp != NULL)
 		free(tmp);
 	return (ret);

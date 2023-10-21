@@ -77,9 +77,6 @@ void consume_word_token(const char *src, char c, size_t *pcurrent,
 void consume_token(const char *src, char c, struct token **pre_token,
 		token_list_t **lst, size_t *pcurrent, size_t *pline)
 {
-	char *lex = NULL;
-	size_t lo;
-
 	if (c == '\n')
 	{
 		*pre_token = add_token(lst, "\n", *pline, NEW_LINE);
@@ -106,22 +103,38 @@ void consume_token(const char *src, char c, struct token **pre_token,
 		*pre_token = add_token(lst, "<", *pline, LESS_THAN);
 	else if (c == '$')
 	{
-		if (match('$', src, pcurrent))
-			*pre_token = add_token(lst, "$$", *pline, DOLLAR_DOLLAR);
-		else if (match('?', src, pcurrent))
-			*pre_token = add_token(lst, "$?", *pline, DOLLAR_QUESTION);
-		else
-		{
-			lo = *pcurrent - 1;
-			while (is_alpha_numeric(src[*pcurrent]))
-			(*pcurrent)++;
-			lex = sub_str(src, lo, (*pcurrent) - 1);
-			if (str_equals(lex, "$") == FALSE)
-			*pre_token = add_token(lst, lex, *pline, VARIABLE);
-			else
-				*pre_token = add_token(lst, lex, *pline, WORD);
-			free(lex);
-		}
+		consume_dollar_token(src, pcurrent, lst, pre_token, pline);
 	}
 }
+/**
+ * consume_dollar_token - consume ...
+ * @src: src
+ * @pcurrent: current
+ * @lst: token list
+ * @pre_token: pre_token
+ * @pline: line
+ * Return: void
+ */
+void consume_dollar_token(const char *src, size_t *pcurrent,
+		token_list_t **lst, struct token **pre_token, size_t *pline)
+{
+	size_t lo;
+	char *lex = NULL;
 
+	if (match('$', src, pcurrent))
+		*pre_token = add_token(lst, "$$", *pline, DOLLAR_DOLLAR);
+	else if (match('?', src, pcurrent))
+		*pre_token = add_token(lst, "$?", *pline, DOLLAR_QUESTION);
+	else
+	{
+		lo = (*pcurrent) - 1;
+		while (is_alpha_numeric(src[*pcurrent]))
+			(*pcurrent)++;
+		lex = sub_str(src, lo, (*pcurrent) - 1);
+		if (str_equals(lex, "$") == FALSE)
+			*pre_token = add_token(lst, lex, *pline, WORD);
+		else
+			*pre_token = add_token(lst, lex, *pline, WORD);
+		free(lex);
+	}
+}

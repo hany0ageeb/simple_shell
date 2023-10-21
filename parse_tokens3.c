@@ -1,0 +1,80 @@
+#include "shell.h"
+#include "str_list.h"
+#include "string.h"
+#include "io.h"
+#include <stdlib.h>
+#include <unistd.h>
+
+/**
+ * print_not_found_err - print no such file to stderr
+ * @prog: shell name
+ * Return: void
+ */
+void print_not_found_err(const char *prog)
+{
+	_fputs(prog, STDERR_FILENO);
+	_fputs(": No such file or directory\n", STDERR_FILENO);
+}
+/**
+ * is_valid_token_arg - check if token is valid as command argument
+ * @token: token
+ * Return: TRUE if valid otherwise FALSE
+ */
+bool_t is_valid_token_arg(const token_t *token)
+{
+	if (token == NULL)
+		return (FALSE);
+	if (token->type == SEMI_COLON || token->type == NEW_LINE)
+		return (FALSE);
+	if (token->type == WORD || token->type == NUMBER)
+		return (TRUE);
+	if (token->type == DOLLAR_DOLLAR || token->type == DOLLAR_QUESTION)
+		return (TRUE);
+	if (token->type == VARIABLE)
+		return (TRUE);
+	return (FALSE);
+}
+/**
+ * search_for_cmd - search for cmd file
+ * @start: start node
+ * @session: session
+ * Return: cmd
+ */
+token_t *search_for_cmd(token_node_t *start, sh_session_t *session)
+{
+	char **paths = NULL;
+	char *full_path = NULL;
+	token_t *cmd_tok = NULL;
+
+	if (contains_char(start->token->lexeme, '/') == TRUE)
+	{
+		if (access(start->token->lexeme, X_OK) == 0)
+		{
+			cmd_tok = copy_token(start->token);
+			return (cmd_tok);
+		}
+		else
+		{
+			print_not_found_err(session->sh_name);
+			session->status = 127;
+			return (NULL);
+		}
+	}
+	else
+	{
+		paths = get_paths(session->env_var_lst);
+		full_path = find_full_path(start->token->lexeme, paths);
+		if (paths != NULL)
+			free_str_list(&paths);
+		if (full_path == NULL)
+		{
+			session->status = 127;
+			print_not_found_err(session->sh_name);
+			return (NULL);
+		}
+		cmd_tok = create_token(full_path, start->token->line, WORD);
+		free(full_path);
+		return (cmd_tok);
+	}
+}
+

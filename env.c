@@ -45,7 +45,8 @@ char *_getenv(char *name, char **envp)
  * @envp: envp
  * Return: 0 on success
  */
-int _setenv(const char *name, const char *value, bool_t overwrite, char ***envp)
+int _setenv(const char *name, const char *value, bool_t overwrite,
+		char ***envp)
 {
 	int name_idx = -1;
 	size_t i = 0;
@@ -70,10 +71,7 @@ int _setenv(const char *name, const char *value, bool_t overwrite, char ***envp)
 		tmp = concat_str(name, "=");
 		_name = concat_str(tmp, value);
 		if (tmp != NULL)
-		{
 			free(tmp);
-			tmp = NULL;
-		}
 		add_to_str_list(envp, _name);
 		free(_name);
 	}
@@ -83,10 +81,7 @@ int _setenv(const char *name, const char *value, bool_t overwrite, char ***envp)
 		tmp = concat_str(name, "=");
 		(*envp)[name_idx] = concat_str(tmp, value);
 		if (tmp != NULL)
-		{
 			free(tmp);
-			tmp = NULL;
-		}
 	}
 	return (0);
 }

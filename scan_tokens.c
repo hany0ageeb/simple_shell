@@ -5,47 +5,28 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <unistd.h>
-void print_error(const char *argv0, size_t line, const char *lexeme, const char *mssg)
+/**
+ * print_error - print syntax error
+ * @argv0: argv[0]
+ * @line: line
+ * @lexeme: lexeme
+ * Return: void
+ */
+void print_error(const char *argv0, size_t line,
+		const char *lexeme)
 {
-	char *line_str, *tmp, *l;
+	char *l;
 
-	tmp = concat_str(argv0,": ");
 	l = int_to_str(line);
-	line_str = concat_str(tmp, l);
-	if (tmp != NULL)
-	{
-		free(tmp);
-		tmp = NULL;
-	}
+	_fputs(argv0, STDERR_FILENO);
+	_fputs(": ", STDERR_FILENO);
+	_fputs(l, STDERR_FILENO);
+	_fputs(": Syntax error: ", STDERR_FILENO);
+	_fputs("\"", STDERR_FILENO);
+	_fputs(lexeme, STDERR_FILENO);
+	_fputs("\" unexpected\n", STDERR_FILENO);
 	if (l != NULL)
-	{
 		free(l);
-		l = NULL;
-	}
-	tmp = concat_str(line_str, mssg);
-	if (line_str != NULL)
-	{
-		free(line_str);
-		line_str = NULL;
-	}
-	line_str = concat_str(tmp, lexeme);
-	if (tmp != NULL)
-	{
-		free(tmp);
-		tmp = NULL;
-	}
-	tmp = concat_str(line_str, "\" unexpected\n");
-	if (line_str != NULL)
-	{
-		free(line_str);
-		line_str = NULL;
-	}
-	_fputs(tmp, STDERR_FILENO);
-	if (tmp != NULL)
-	{
-		free(tmp);
-		tmp = NULL;
-	}
 }
 /**
  * report_error - report syntax errors
@@ -73,18 +54,12 @@ void report_error(const char *argv0, token_t *pre_token,
 			tmp = copy_str(">>");
 		else if (next_char == '&' && c == '&')
 			tmp = copy_str("&&");
-		print_error(argv0, line, tmp != NULL ? tmp : lexeme, " Syntax error: \"");
-		/*printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line,
-				tmp != NULL ? tmp : lexeme);*/
+		print_error(argv0, line, tmp != NULL ? tmp : lexeme);
 	}
 	else
 	{
 		if (c == '\n')
-		{
-			print_error(argv0, line, pre_token->lexeme, " Syntax error: \"");
-			/*printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line,
-					pre_token->lexeme);*/
-		}
+			print_error(argv0, line, pre_token->lexeme);
 		else
 		{
 			type = pre_token->type;
@@ -92,12 +67,10 @@ void report_error(const char *argv0, token_t *pre_token,
 					(c == '|' || c == '&' || c == '>' || c == '<' || c == ';'))
 			{
 				tmp = concat_str(pre_token->lexeme, lexeme);
-				print_error(argv0, line, tmp, " Syntax error: \"");
-				/*printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line, tmp);*/
+				print_error(argv0, line, tmp);
 			}
 			else
-				/*printf("%s: %lu Syntax error: \"%s\" unexpected\n", argv0, line, lexeme);*/
-				print_error(argv0, line, lexeme, " Syntax error: \"");
+				print_error(argv0, line, lexeme);
 		}
 	}
 	if (tmp != NULL)
@@ -140,26 +113,6 @@ bool_t is_valid_token(const token_t *pre_token, const char c)
 	return (TRUE);
 }
 /**
- * add_token - add token to a list of tokens
- * @lst: list of tokens
- * @lexeme: lexeme
- * @line: line number
- * @type: token type
- * Return: the newly added token
- */
-token_t *add_token(token_list_t **lst, const char *lexeme,
-		size_t line, token_type_t type)
-{
-	struct token *token = NULL;
-
-	if (*lst == NULL)
-		*lst = create_token_list();
-	token = create_token(lexeme, line, type);
-	if (token != NULL)
-		add_token_to_list(*lst, token);
-	return (token);
-}
-/**
  * match - match expected with next char in src
  * @expected: expected char in src
  * @src: source code
@@ -191,10 +144,7 @@ bool_t scan_tokens(const char *src, token_list_t **lst,
 	struct token *pre_token = NULL;
 
 	if (lst == NULL)
-	{
-		errno = EINVAL;
 		return (FALSE);
-	}
 	len = str_len(src);
 	if (*lst != NULL)
 		free_token_list(lst);
@@ -218,11 +168,9 @@ bool_t scan_tokens(const char *src, token_list_t **lst,
 			consume_word_token(src, c, &current, lst, line, start, &pre_token);
 		else
 		{
-			/*printf("%s: %lu Syntax error: \"%c\" unexpected\n", argv0, line, c);*/
 			tmp = _str(c, 1);
-			print_error(argv0, line, tmp, "Syntax error: ");
-			if (tmp != NULL)
-				free(tmp);
+			print_error(argv0, line, tmp);
+			free(tmp);
 			return (FALSE);
 		}
 		start = current;

@@ -149,35 +149,6 @@ char *dir_exists(const char *path, const char *dir)
 	}
 	return (full_path);
 }
-/*
-bool_t file_exists(const char *d, const char *f)
-{
-	DIR *pDir;
-	struct dirent *dir = NULL;
-
-	if (!(IS_NULL_OR_EMPTY(d)) && !(IS_NULL_OR_EMPTY(f)))
-	{
-		pDir = opendir(d);
-		if (pDir == NULL)
-			return (FALSE);
-		dir = readdir(pDir);
-		while (dir != NULL)
-		{
-			if (str_cmp(dir->d_name, f) == 0)
-			{
-				if (is_regular_file(d, f) == TRUE)
-				{
-					closedir(pDir);
-					return (TRUE);
-				}
-			}
-			dir = readdir(pDir);
-		}
-		closedir(pDir);
-	}
-	return (FALSE);
-}
-*/
 /**
  * is_regular_file - is regular file
  * @d: directory name

@@ -19,11 +19,18 @@ token_t *add_token(token_list_t **lst, const char *lexeme, size_t line,
 bool_t match(char expected, const char *src, size_t *pcurrent);
 void consume_comment(const char *src, char c, size_t *pcurrent, size_t *pline);
 bool_t is_alpha_numeric(const char c);
+void consume_dollar_token(const char *src, size_t *pcurrent,
+		token_list_t **lst, struct token **pre_token, size_t *pline);
 void consume_word_token(const char *src, char c, size_t *pcurrent,
 		token_list_t **lst, size_t line, size_t start, token_t **pre_token);
 void consume_token(const char *src, char c, token_t **pre_token,
 		token_list_t **lst, size_t *pcurrent, size_t *pline);
 token_node_t *get_op(token_node_t *start, token_node_t *end);
+int execute_command(simple_command_t *command, sh_session_t *session);
+token_t *search_for_cmd(token_node_t *start, sh_session_t *session);
+bool_t is_valid_token_arg(const token_t *token);
+void set_command_execute(simple_command_t *command);
+token_list_t *get_args_list(token_node_t *start, token_node_t *end);
 bool_t scan_tokens(const char *src, token_list_t **lst, const char *argv0);
 simple_command_t *get_simple_command(token_node_t *start, token_node_t *end,
 		sh_session_t *session);

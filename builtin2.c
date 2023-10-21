@@ -42,14 +42,17 @@ int env_exec(simple_command_t *command, sh_session_t *session)
 		return (-1);
 	for (i = 0; session->env_var_lst[i] != NULL; ++i)
 	{
-		if (start_with(session->env_var_lst[i], "_=") == FALSE)
-		{
-			_puts(session->env_var_lst[i]);
-			_putc('\n');
-		}
+		_puts(session->env_var_lst[i]);
+		_putc('\n');
 	}
 	return (0);
 }
+/**
+ * print_exit_error - print exit error
+ * @session: session
+ * @arg: argument
+ * Return: void
+ */
 void print_exit_error(const sh_session_t *session, const token_node_t *arg)
 {
 	char *tmp;
@@ -97,6 +100,13 @@ int exit_exec(simple_command_t *command, sh_session_t *session)
 		exit(session->status);
 	}
 }
+/**
+ * _cd - cd into path
+ * @path: path
+ * @session: session
+ * @pwd: $PWD
+ * Return: 0 on success otherwise on fail.
+ */
 int _cd(const char *path, sh_session_t *session, const char *pwd)
 {
 	int ret = 0;

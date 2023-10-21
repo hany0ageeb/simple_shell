@@ -38,6 +38,12 @@ char *_str(const char c, size_t len)
 	}
 	return (str);
 }
+/**
+ * end_with_char - check if str end with c char
+ * @str: string
+ * @c: char
+ * Return: TRUE if str last char is c otherwise FALSE
+ */
 bool_t end_with_char(const char *str, const char c)
 {
 	size_t len;

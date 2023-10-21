@@ -66,9 +66,10 @@ char **get_paths(char **envp)
 	}
 	return (paths);
 }
+
 /**
  * write_alias - write alias to file
- * @home_dir - home directory
+ * @home_dir: home directory
  * @f_name: file name
  * @head: alias list begin
  * Return: 0 on success
@@ -79,9 +80,7 @@ int write_alias(const char *home_dir, const char *f_name, alias_node_t *head)
 	int fdout;
 
 	if (IS_NULL_OR_EMPTY(home_dir))
-	{
 		path = concat_str("./", f_name);
-	}
 	else
 	{
 		tmp = concat_str(home_dir, "/");
@@ -110,19 +109,50 @@ int write_alias(const char *home_dir, const char *f_name, alias_node_t *head)
 		tmp = concat_str(line, "\n");
 		_fputs(tmp, fdout);
 		if (tmp != NULL)
-		{
 			free(tmp);
-			tmp = NULL;
-		}
 		if (line != NULL)
-		{
 			free(line);
-			line = NULL;
-		}
 		head = head->next;
 	}
 	close(fdout);
 	return (0);
+}
+/**
+ * read_ali - do the actual reading
+ * @fdin: file desc
+ * @phead: head
+ * Return: void
+ */
+void read_ali(int fdin, alias_node_t **phead)
+{
+	ssize_t n_read = 0;
+	char *lineptr = NULL;
+	size_t n = 0;
+	int index;
+	char *name = NULL, *value = NULL;
+	alias_t *a = NULL;
+
+	while ((n_read = _getline(&lineptr, &n, fdin)) != -1)
+	{
+		if (!(IS_NULL_OR_EMPTY(lineptr)))
+		{
+			index = index_of(lineptr, 0, n, '=');
+			if (index != -1)
+			{
+				name = sub_str(lineptr, 0, index - 1);
+				value = sub_str(lineptr, index + 1, n - 1);
+			}
+			else
+			{
+				name = copy_str(lineptr);
+				value = copy_str("");
+			}
+			a = create_alias(name, value);
+			add_to_alias_list(phead, a);
+		}
+	}
+	if (lineptr != NULL)
+		free(lineptr);
 }
 /**
  * read_alias - read alias file
@@ -134,13 +164,7 @@ alias_node_t *read_alias(const char *home_dir, const char *f_name)
 {
 	char *tmp = concat_str(home_dir, "/");
 	char *path = concat_str(tmp, f_name);
-	char *lineptr = NULL;
-	char *name = NULL, *value = NULL;
-	ssize_t n_read = 0;
-	size_t n = 0;
-	int index;
 	alias_node_t *head = NULL;
-	alias_t *a = NULL;
 	int fdin;
 
 	if (tmp != NULL)
@@ -159,42 +183,7 @@ alias_node_t *read_alias(const char *home_dir, const char *f_name)
 		perror("open");
 		return (NULL);
 	}
-	while ((n_read = _getline(&lineptr, &n, fdin)) != -1)
-	{
-		if (!(IS_NULL_OR_EMPTY(lineptr)))
-		{
-			index = index_of(lineptr, 0, n, '=');
-			if (index != -1)
-			{
-				name = sub_str(lineptr, 0, index - 1);
-				value = sub_str(lineptr, index + 1, n - 1);
-			}
-			else
-			{
-				name = copy_str(lineptr);
-				value = copy_str("");
-			}
-			a = create_alias(name, value);
-			add_to_alias_list(&head, a);
-		}
-	}
-	if (n_read == -1 && errno == 0 && !(IS_NULL_OR_EMPTY(lineptr)))
-	{
-		index = index_of(lineptr, 0, n, '=');
-		if (index != -1)
-		{
-			name = sub_str(lineptr, 0, index - 1);
-			value = sub_str(lineptr, index + 1, n - 1);
-		}
-		else
-		{
-			name = copy_str(lineptr);
-			value = copy_str("");
-		}
-		a = create_alias(name, value);
-		add_to_alias_list(&head, a);
-		free(lineptr);
-	}
+	read_ali(fdin, &head);
 	close(fdin);
 	return (head);
 }
