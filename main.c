@@ -92,6 +92,11 @@ static int run_prompt(sh_session_t *session)
 			}
 			run_result = run(line, session);
 		}
+		if (line != NULL)
+		{
+			free(line);
+			line = NULL;
+		}
 	}
 	else
 	{
@@ -100,6 +105,11 @@ static int run_prompt(sh_session_t *session)
 		{
 			run_result = run(line, session);
 			n_read = getline(&line, &n, stdin);
+		}
+		if (line != NULL)
+		{
+			free(line);
+			line = NULL;
 		}
 		return (run_result);
 	}
