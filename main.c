@@ -76,7 +76,7 @@ static int run(const char *src, sh_session_t *session)
  */
 static int run_prompt(sh_session_t *session)
 {
-	char *line;
+	char *line = NULL;
 	size_t n = 0;
 	ssize_t n_read = 0, run_result = 0;
 
@@ -125,7 +125,7 @@ static int run_file(const char *file, sh_session_t *session)
 	char *line = NULL;
 	int run_result = 0;
 	size_t n = 0;
-	ssize_t n_read;
+	ssize_t n_read = 0;
 
 	if (fd == -1)
 	{
