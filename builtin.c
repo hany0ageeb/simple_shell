@@ -109,12 +109,7 @@ int setenv_exec(simple_command_t *command, sh_session_t *session)
 	int ret = 0;
 
 	if (command->args == NULL || command->args->head == NULL)
-	{
-		free(command->cmd->lexeme);
-		command->cmd->lexeme = NULL;
-		command->cmd->lexeme = copy_str("env");
-		return (env_exec(command, session));
-	}
+		return (0);
 	node = command->args->head;
 	while (node != NULL)
 	{
