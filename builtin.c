@@ -104,9 +104,9 @@ int alias_exec(simple_command_t *command, sh_session_t *session)
 int setenv_exec(simple_command_t *command, sh_session_t *session)
 {
 	size_t len = 0;
-	token_node_t *node;
-	char *lin;
-	int ret;
+	token_node_t *node = NULL;
+	char *lin = NULL;
+	int ret = 0;
 
 	if (command->args == NULL || command->args->head == NULL)
 	{
@@ -136,6 +136,7 @@ int setenv_exec(simple_command_t *command, sh_session_t *session)
 		_fputc('\n', STDERR_FILENO);
 		return (1);
 	}
+	if (len == 2)
 	ret = _setenv(command->args->head->token->lexeme,
 			command->args->head->next->token->lexeme, TRUE, &session->env_var_lst);
 	return (ret);
