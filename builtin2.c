@@ -17,9 +17,7 @@ int unsetenv_exec(simple_command_t *command, sh_session_t *session)
 	token_node_t *node = NULL;
 
 	if (command->args == NULL || command->args->head == NULL)
-	{
-		return (env_exec(command, session));
-	}
+		return (0);
 	node = command->args->head;
 	while (node != NULL)
 	{
