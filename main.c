@@ -82,15 +82,13 @@ static int run_prompt(sh_session_t *session)
 
 	if (isatty(STDIN_FILENO))
 	{
-		while (TRUE)
+		_puts(session->prompt);
+		n_read = getline(&line, &n, stdin);
+		while (n_read != -1)
 		{
+			run_result = run(line, session);
 			_puts(session->prompt);
 			n_read = getline(&line, &n, stdin);
-			if (n_read == -1 && errno != 0)
-			{
-				return (-1);
-			}
-			run_result = run(line, session);
 		}
 		if (line != NULL)
 		{
