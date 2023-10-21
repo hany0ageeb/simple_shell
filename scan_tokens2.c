@@ -79,7 +79,10 @@ void consume_token(const char *src, char c, struct token **pre_token,
 {
 	if (c == '\n')
 	{
-		*pre_token = add_token(lst, "\n", *pline, NEW_LINE);
+		if ((*pre_token) != NULL && ((*pre_token)->type == WORD ||
+					(*pre_token)->type == NUMBER || (*pre_token)->type == VARIABLE ||
+					(*pre_token)->type == DOLLAR_DOLLAR))
+			*pre_token = add_token(lst, "\n", *pline, NEW_LINE);
 		(*pline)++;
 	}
 	else if (c == '|')
