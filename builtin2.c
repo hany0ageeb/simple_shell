@@ -53,23 +53,42 @@ int env_exec(simple_command_t *command, sh_session_t *session)
  */
 void print_exit_error(const sh_session_t *session, const token_node_t *arg)
 {
-	char *tmp;
-	char *message;
+	char *tmp = NULL;
+	char *message = NULL;
+	char *ln = int_to_str(arg->token->line);
 
 	message = concat_str(session->sh_name, ": ");
-	tmp = concat_str(message, ": exit: Illegal number: ");
+	tmp = concat_str(message, ln);
 	if (message != NULL)
 	{
 		free(message);
 		message = NULL;
 	}
-	message = concat_str(tmp, arg->token->lexeme);
+	message = concat_str(tmp, ": exit: Illegal number: ");
+	if (tmp != NULL)
+	{
+		free(tmp);
+		tmp = NULL;
+	}
+	tmp = concat_str(message, arg->token->lexeme);
+	if (message != NULL)
+	{
+		free(message);
+		message = NULL;
+	}
+	message = concat_str(tmp, "\n");
+	if (tmp != NULL)
+	{
+		free(tmp);
+		tmp = NULL;
+	}
 	_fputs(message, STDERR_FILENO);
-	_fputc('\n', STDERR_FILENO);
 	if (message != NULL)
 		free(message);
 	if (tmp != NULL)
 		free(tmp);
+	if (ln != NULL)
+		free(ln);
 }
 /**
  * exit_exec - execute exit

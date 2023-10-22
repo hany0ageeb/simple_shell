@@ -145,7 +145,7 @@ static int run_file(const char *file, sh_session_t *session)
 		_fputs(": 0: Can't open ", STDERR_FILENO);
 		_fputs(file, STDERR_FILENO);
 		_fputs("\n", STDERR_FILENO);
-		return(127);
+		return (127);
 	}
 	while ((n_read = _getline(&line, &n, fd)) != -1)
 	{
