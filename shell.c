@@ -75,7 +75,7 @@ void unload_alias(sh_session_t *session)
 {
 	alias_node_t *v = NULL;
 	char *alias = NULL;
-	int fd = open(session->alias_file_name, O_WRONLY | O_CREAT | O_TRUNC);
+	int fd = open(session->alias_file_name, O_WRONLY | O_CREAT | O_TRUNC, 0600);
 
 	if (fd == -1)
 	{
@@ -149,7 +149,7 @@ void load_alias(sh_session_t *session)
 {
 	int fd;
 
-	fd = open(session->alias_file_name, O_RDONLY | O_CREAT);
+	fd = open(session->alias_file_name, O_RDONLY | O_CREAT, 0600);
 	if (fd == -1)
 		return;
 	read_alias_file(fd, session);

@@ -60,13 +60,15 @@ int alias_exec(simple_command_t *command, sh_session_t *session)
 	alias_node_t *v = session != NULL ? session->alias_list : NULL;
 	token_node_t *tok_node = NULL;
 	alias_t *al = NULL;
+	int index = -1;
+	size_t len;
 	char *alias = NULL, *name, *value;
 	/**alias without arg**/
 	if (command->args == NULL || command->args->head == NULL)
 	{
 		while (v != NULL)
 		{
-			alias = concat_strs(4, v->data->name, "=", v->data->value, "\n");
+			alias = concat_strs(4, v->data->name, "='", v->data->value, "'\n");
 			_puts(alias);
 			free(alias);
 			v = v->next;
@@ -76,11 +78,12 @@ int alias_exec(simple_command_t *command, sh_session_t *session)
 	tok_node = command->args->head;
 	while (tok_node != NULL)
 	{
-		if (tok_node->next != NULL)
+		len = str_len(tok_node->token->lexeme);
+		index = index_of(tok_node->token->lexeme, 0 , len - 1, '=');
+		if (index >= 0)
 		{
-			name = copy_str(tok_node->token->lexeme);
-			tok_node = tok_node->next;
-			value = copy_str(tok_node->token->lexeme);
+			name = sub_str(tok_node->token->lexeme, 0, index - 1);
+			value = sub_str(tok_node->token->lexeme, index + 1, len - 1);
 			add_or_update_alias_list(&session->alias_list, name, value);
 		}
 		else
@@ -88,7 +91,7 @@ int alias_exec(simple_command_t *command, sh_session_t *session)
 			al = find_alias(tok_node->token->lexeme, session->alias_list);
 			if (al != NULL)
 			{
-				alias = concat_strs(4, al->name, "=", al->value, "\n");
+				alias = concat_strs(4, al->name, "='", al->value, "'\n");
 				_puts(alias);
 				free(alias);
 			}
