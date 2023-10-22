@@ -1,4 +1,5 @@
 #include "string.h"
+#include <stdarg.h>
 #include <stdlib.h>
 /**
  * index_of - index of
@@ -54,4 +55,44 @@ bool_t end_with_char(const char *str, const char c)
 	if (str[len - 1] == c)
 		return (TRUE);
 	return (FALSE);
+}
+/**
+ * concat_strs - concat variadoc list of strings
+ * @count: string count
+ * Return: concated strings
+ */
+char *concat_strs(size_t count, ...)
+{
+	va_list argptr;
+	size_t i, total_len = 0, j, k;
+	char *tmp = NULL, *str = NULL;
+
+	va_start(argptr, count);
+	for (i = 0; i < count; ++i)
+	{
+		tmp = va_arg(argptr, char *);
+		total_len += str_len(tmp);
+	}
+	va_end(argptr);
+	if (total_len > 0)
+	{
+		str = malloc(sizeof(char) * (total_len + 1));
+		if (str != NULL)
+		{
+			va_start(argptr, count);
+			j = 0;
+			for (i = 0; i < count; ++i)
+			{
+				tmp = va_arg(argptr, char *);
+				if (!(IS_NULL_OR_EMPTY(tmp)))
+				{
+					for (k = 0; tmp[k] != '\0'; ++k, ++j)
+						str[j] = tmp[k];
+				}
+			}
+			str[total_len] = '\0';
+			va_end(argptr);
+		}
+	}
+	return (str);
 }

@@ -11,10 +11,18 @@
  * @prog: shell name
  * Return: void
  */
-void print_not_found_err(const char *prog)
+void print_not_found_err(const char *prog, const token_t *cmd)
 {
-	_fputs(prog, STDERR_FILENO);
-	_fputs(": No such file or directory\n", STDERR_FILENO);
+	char *msg = NULL, *ln = NULL;
+	ln = int_to_str(cmd->line);
+	msg = concat_strs(6, prog, ": ", ln, ": ", cmd->lexeme, ": not found\n");
+	if (msg != NULL)
+	{
+		_fputs(msg, STDERR_FILENO);
+		free(msg);
+	}
+	if (ln != NULL)
+		free(ln);
 }
 /**
  * is_valid_token_arg - check if token is valid as command argument
@@ -57,7 +65,7 @@ token_t *search_for_cmd(token_node_t *start, sh_session_t *session)
 		}
 		else
 		{
-			print_not_found_err(session->sh_name);
+			print_not_found_err(session->sh_name, start->token);
 			session->status = 127;
 			return (NULL);
 		}
@@ -71,7 +79,7 @@ token_t *search_for_cmd(token_node_t *start, sh_session_t *session)
 		if (full_path == NULL)
 		{
 			session->status = 127;
-			print_not_found_err(session->sh_name);
+			print_not_found_err(session->sh_name, start->token);
 			return (NULL);
 		}
 		cmd_tok = create_token(full_path, start->token->line, WORD);
