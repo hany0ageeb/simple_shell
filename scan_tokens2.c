@@ -105,9 +105,7 @@ void consume_token(const char *src, char c, struct token **pre_token,
 	else if (c == '<')
 		*pre_token = add_token(lst, "<", *pline, LESS_THAN);
 	else if (c == '$')
-	{
 		consume_dollar_token(src, pcurrent, lst, pre_token, pline);
-	}
 }
 /**
  * consume_dollar_token - consume ...
@@ -135,9 +133,10 @@ void consume_dollar_token(const char *src, size_t *pcurrent,
 			(*pcurrent)++;
 		lex = sub_str(src, lo, (*pcurrent) - 1);
 		if (str_equals(lex, "$") == FALSE)
-			*pre_token = add_token(lst, lex, *pline, WORD);
+			*pre_token = add_token(lst, lex, *pline, VARIABLE);
 		else
 			*pre_token = add_token(lst, lex, *pline, WORD);
 		free(lex);
 	}
 }
+
