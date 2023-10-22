@@ -171,7 +171,8 @@ int cd_exec(simple_command_t *command, sh_session_t *session)
 			ret = _cd(dir, session, pwd);
 		else
 		{
-			print_cd_error(session->sh_name, command->args->head->token->line, dir);
+			print_cd_error(session->sh_name, command->args->head->token->line,
+					command->args->head->token->lexeme);
 			ret = 2;
 		}
 	}
