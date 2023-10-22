@@ -2,6 +2,7 @@
 #include "str_list.h"
 #include "string.h"
 #include "io.h"
+#include "env.h"
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -46,6 +47,7 @@ token_t *search_for_cmd(token_node_t *start, sh_session_t *session)
 	char *full_path = NULL;
 	token_t *cmd_tok = NULL;
 
+	replace_cmd_tok_var(start->token, session);
 	if (contains_char(start->token->lexeme, '/') == TRUE)
 	{
 		if (access(start->token->lexeme, X_OK) == 0)
@@ -75,6 +77,33 @@ token_t *search_for_cmd(token_node_t *start, sh_session_t *session)
 		cmd_tok = create_token(full_path, start->token->line, WORD);
 		free(full_path);
 		return (cmd_tok);
+	}
+}
+/**
+ * replace_cmd_tok_var - replace var with its value if possible
+ * @cmd_token: command token
+ * @session: session
+ * Return: void
+ */
+void replace_cmd_tok_var(token_t *cmd_token, sh_session_t *session)
+{
+	char *var_name = NULL, *var_value = NULL;
+
+	if (cmd_token != NULL)
+	{
+		if (cmd_token->type == VARIABLE)
+		{
+			var_name = sub_str(cmd_token->lexeme, 1, str_len(cmd_token->lexeme) - 1);
+			var_value = _getenv(var_name, session->env_var_lst);
+			if (var_value != NULL)
+			{
+				free(cmd_token->lexeme);
+				cmd_token->lexeme = var_value;
+				cmd_token->type = WORD;
+			}
+			if (var_name != NULL)
+				free(var_name);
+		}
 	}
 }
 

@@ -88,6 +88,7 @@ simple_command_t *make_simple_command(token_node_t *start, token_node_t *end,
 	token_t *cmd_token = NULL;
 	token_list_t *args = NULL;
 
+	replace_cmd_tok_var(start->token, session);
 	if (is_builtin_cmd(start->token->lexeme))
 	{
 		cmd_token = copy_token(start->token);

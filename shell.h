@@ -35,6 +35,7 @@ bool_t scan_tokens(const char *src, token_list_t **lst, const char *argv0);
 simple_command_t *get_simple_command(token_node_t *start, token_node_t *end,
 		sh_session_t *session);
 void replace_variables(token_list_t *args, sh_session_t *session);
+void replace_cmd_tok_var(token_t *cmd_token, sh_session_t *session);
 int parse_tokens(const token_list_t *lst, sh_session_t *session);
 char **get_paths(char **envp);
 char *find_full_path(char *cmd, char **paths);

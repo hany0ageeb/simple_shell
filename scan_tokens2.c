@@ -85,6 +85,14 @@ void consume_token(const char *src, char c, struct token **pre_token,
 			*pre_token = add_token(lst, "\n", *pline, NEW_LINE);
 		(*pline)++;
 	}
+	else if (c == '\\')
+	{
+		if (src[*pcurrent] != '\0' && src[*pcurrent] == '\\')
+		{
+			*pre_token = add_token(lst, "\\", *pline, WORD);
+			(*pcurrent)++;
+		}
+	}
 	else if (c == '|')
 		if (match('|', src, pcurrent))
 			*pre_token = add_token(lst, "||", *pline, PIPE_PIPE);

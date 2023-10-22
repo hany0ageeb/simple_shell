@@ -117,9 +117,11 @@ void search_for_var_value(token_list_t *args,
  * replace_variables - replace vars
  * @args: arguments list
  * @session: session
+ * @cmd_token: command token
  * Return: void
  */
-void replace_variables(token_list_t *args, sh_session_t *session)
+void replace_variables(token_list_t *args,
+		sh_session_t *session)
 {
 	token_node_t *v = NULL, *pre_v = NULL;
 
