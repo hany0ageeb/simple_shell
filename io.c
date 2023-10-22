@@ -52,12 +52,15 @@ int _fputc(char c, int fdout)
  */
 int _fgetc(int fdin)
 {
-	char c;
-	ssize_t n_read;
+	static char buffer[BUFF_SIZE + 1];
+	static int index = -1;
+	static int n_read;
 
-	n_read = read(fdin, &c, 1);
-	if (n_read == 1)
-		return (c);
-	return (-1);
+	if (index == -1 || (index + 1) >= n_read)
+		n_read = read(fdin, buffer, 1024);
+	if (n_read <= 0)
+		return (-1);
+	index++;
+	return ((int)buffer[index]);
 }
 

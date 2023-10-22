@@ -28,6 +28,7 @@ int main(int argc, char **argv, char **envp)
 		perror("Create session");
 		return (-1);
 	}
+	load_alias(session);
 	if (argc == 1)
 	{
 		ret = run_prompt(session);
@@ -43,6 +44,7 @@ int main(int argc, char **argv, char **envp)
 	}
 	if (session != NULL)
 	{
+		unload_alias(session);
 		free_session(&session);
 	}
 	return (ret);

@@ -116,4 +116,30 @@ void replace_cmd_tok_var(token_t *cmd_token, sh_session_t *session)
 		}
 	}
 }
+/**
+ * replace_alias - search alias list for cmd lex and replace
+ * @cmd_token: command token
+ * @session: session
+ * Return: void
+ */
+void replace_alias(token_t *cmd_token, sh_session_t *session)
+{
+	alias_t *a = NULL, *b = NULL;
+
+	a = find_alias(cmd_token->lexeme, session->alias_list);
+	if (a != NULL)
+	{
+		free(cmd_token->lexeme);
+		b = find_alias(cmd_token->lexeme, session->alias_list);
+		if (b != NULL)
+		{
+			cmd_token->lexeme = copy_str(b->value);
+		}
+		else
+		{
+			cmd_token->lexeme = copy_str(a->value);
+		}
+		cmd_token->lexeme = a->value;
+	}
+}
 

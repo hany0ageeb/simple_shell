@@ -14,8 +14,7 @@ typedef struct alias_node
 alias_node_t *add_to_alias_list(alias_node_t **head, alias_t *a);
 alias_node_t *add_or_update_alias_list(alias_node_t **head,
 		char *name, char *value);
+alias_t *find_alias(const char *name, alias_node_t *head);
 void free_alias_list(alias_node_t **head);
-void print_alias_all(alias_node_t *head);
-void print_alias(const char *name, alias_node_t *head);
 #endif
 

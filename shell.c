@@ -66,125 +66,93 @@ char **get_paths(char **envp)
 	}
 	return (paths);
 }
-
 /**
- * write_alias - write alias to file
- * @home_dir: home directory
- * @f_name: file name
- * @head: alias list begin
- * Return: 0 on success
- */
-int write_alias(const char *home_dir, const char *f_name, alias_node_t *head)
-{
-	char *line, *tmp = NULL, *path = NULL;
-	int fdout;
-
-	if (IS_NULL_OR_EMPTY(home_dir))
-		path = concat_str("./", f_name);
-	else
-	{
-		tmp = concat_str(home_dir, "/");
-		path = concat_str(tmp, f_name);
-		if (tmp != NULL)
-		{
-			free(tmp);
-			tmp = NULL;
-		}
-	}
-	fdout = open(path, O_WRONLY | O_CREAT | O_TRUNC);
-	if (fdout == -1)
-	{
-		perror("open");
-		return (-1);
-	}
-	while (head != NULL)
-	{
-		tmp = concat_str(head->data->name, "=");
-		line = concat_str(tmp, head->data->value);
-		if (tmp != NULL)
-		{
-			free(tmp);
-			tmp = NULL;
-		}
-		tmp = concat_str(line, "\n");
-		_fputs(tmp, fdout);
-		if (tmp != NULL)
-			free(tmp);
-		if (line != NULL)
-			free(line);
-		head = head->next;
-	}
-	close(fdout);
-	return (0);
-}
-/**
- * read_ali - do the actual reading
- * @fdin: file desc
- * @phead: head
+ * unload_alias - unload alias into file
+ * @session: session
  * Return: void
  */
-void read_ali(int fdin, alias_node_t **phead)
+void unload_alias(sh_session_t *session)
 {
-	ssize_t n_read = 0;
-	char *lineptr = NULL;
-	size_t n = 0;
-	int index;
-	char *name = NULL, *value = NULL;
-	alias_t *a = NULL;
+	alias_node_t *v = NULL;
+	char *alias = NULL;
+	int fd = open(session->alias_file_name, O_WRONLY | O_CREAT | O_TRUNC);
 
-	while ((n_read = _getline(&lineptr, &n, fdin)) != -1)
+	if (fd == -1)
 	{
-		if (!(IS_NULL_OR_EMPTY(lineptr)))
+		perror("unload alias");
+		return;
+	}
+	if (session != NULL)
+	{
+		v = session->alias_list;
+		while (v != NULL)
 		{
-			index = index_of(lineptr, 0, n, '=');
+			alias = concat_strs(3, v->data->name, "=", v->data->value, "\n");
+			_fputs(alias, fd);
+			if (alias != NULL)
+			{
+				free(alias);
+				alias = NULL;
+			}
+			v = v->next;
+		}
+	}
+	close(fd);
+}
+/**
+ * read_alias_file - read alias from file
+ * @fd: file desc
+ * @session: session
+ * Return: void
+ */
+static void read_alias_file(int fd, sh_session_t *session)
+{
+	char *name, *value, *lineptr = NULL;
+	size_t n = 0;
+	ssize_t n_read = 0, index;
+
+	if (fd == -1 || session == NULL)
+	{
+		errno = EINVAL;
+		return;
+	}
+	while ((n_read = _getline(&lineptr, &n, fd)) != -1)
+	{
+		if (n_read > 0 && lineptr[0] != '\n')
+		{
+			index = index_of(lineptr, 0, n_read - 1, '=');
 			if (index != -1)
 			{
 				name = sub_str(lineptr, 0, index - 1);
-				value = sub_str(lineptr, index + 1, n - 1);
+				if (lineptr[n_read - 1] == '\n')
+					value = sub_str(lineptr, index + 1, n_read - 2);
+				else
+					value = sub_str(lineptr, index + 1, n_read - 1);
 			}
 			else
 			{
 				name = copy_str(lineptr);
 				value = copy_str("");
 			}
-			a = create_alias(name, value);
-			add_to_alias_list(phead, a);
+			add_to_alias_list(&session->alias_list, create_alias(name, value));
 		}
 	}
 	if (lineptr != NULL)
 		free(lineptr);
 }
 /**
- * read_alias - read alias file
- * @home_dir: home directory
- * @f_name: file name
- * Return: alias list
+ * load_alias - load alias from file
+ * @session: session
+ * Return: void
  */
-alias_node_t *read_alias(const char *home_dir, const char *f_name)
+void load_alias(sh_session_t *session)
 {
-	char *tmp = concat_str(home_dir, "/");
-	char *path = concat_str(tmp, f_name);
-	alias_node_t *head = NULL;
-	int fdin;
+	int fd;
 
-	if (tmp != NULL)
-	{
-		free(tmp);
-		tmp = NULL;
-	}
-	fdin = open(path, O_RDONLY | O_CREAT);
-	if (path != NULL)
-	{
-		free(path);
-		path = NULL;
-	}
-	if (fdin == -1)
-	{
-		perror("open");
-		return (NULL);
-	}
-	read_ali(fdin, &head);
-	close(fdin);
-	return (head);
+	fd = open(session->alias_file_name, O_RDONLY | O_CREAT);
+	if (fd == -1)
+		return;
+	read_alias_file(fd, session);
+	close(fd);
 }
 

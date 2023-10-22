@@ -56,42 +56,43 @@ bool_t is_builtin_cmd(const char *lex)
  */
 int alias_exec(simple_command_t *command, sh_session_t *session)
 {
-	char *home_dir = NULL;
-	alias_node_t *head = NULL;
-	token_node_t *v = NULL;
-	char *name, *value;
-	size_t len;
-	int index;
-
-	home_dir = _getenv("HOME", session->env_var_lst);
-	if (home_dir != NULL)
-	{
-		head = read_alias(home_dir, session->alias_file_name);
-	}
+	alias_node_t *v = session != NULL ? session->alias_list : NULL;
+	token_node_t *tok_node = NULL;
+	alias_t *al = NULL;
+	char *alias = NULL, *name, *value;
+	/**alias without arg**/
 	if (command->args == NULL || command->args->head == NULL)
 	{
-		print_alias_all(head);
+		while (v != NULL)
+		{
+			alias = concat_strs(4, v->data->name, "=", v->data->value, "\n");
+			_puts(alias);
+			free(alias);
+			v = v->next;
+		}
+		return (0);
 	}
-	else
+	tok_node = command->args->head;
+	while (tok_node != NULL)
 	{
-		do {
-			len = str_len(v->token->lexeme);
-			index = index_of(v->token->lexeme, 0, len - 1, '=');
-			if (index >= 0)
+		if (tok_node->next != NULL)
+		{
+			name = copy_str(tok_node->token->lexeme);
+			tok_node = tok_node->next;
+			value = copy_str(tok_node->token->lexeme);
+			add_or_update_alias_list(&session->alias_list, name, value);
+		}
+		else
+		{
+			al = find_alias(tok_node->token->lexeme, session->alias_list);
+			if (al != NULL)
 			{
-				name = sub_str(v->token->lexeme, 0, index - 1);
-				value = sub_str(v->token->lexeme, index + 1, len - 1);
-				add_or_update_alias_list(&head, name, value);
+				alias = concat_strs(4, al->name, "=", al->value, "\n");
+				_puts(alias);
+				free(alias);
 			}
-			else
-			{
-				print_alias(v->token->lexeme, head);
-			}
-		} while (v != NULL);
-	}
-	if (head != NULL)
-	{
-		write_alias(home_dir, session->alias_file_name, head);
+		}
+		tok_node = tok_node->next;
 	}
 	return (0);
 }

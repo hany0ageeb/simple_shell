@@ -170,6 +170,7 @@ int parse_tokens(const token_list_t *lst, sh_session_t *session)
 			current = current->next;
 		if (start != NULL)
 		{
+			replace_alias(start->token, session);
 			command = get_simple_command(start, current, session);
 			if (command != NULL && command->execute != NULL)
 			{

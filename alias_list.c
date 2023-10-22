@@ -99,43 +99,18 @@ void free_alias_list(alias_node_t **head)
 	}
 }
 /**
- * print_alias_all - print all alias nodes
- * @head: head node
- */
-void print_alias_all(alias_node_t *head)
-{
-	while (head != NULL)
-	{
-		_puts("alias ");
-		_puts(head->data->name);
-		_puts("=");
-		_putc('\'');
-		_puts(head->data->value);
-		_puts("\'\n");
-		head = head->next;
-	}
-}
-/**
- * print_alias - print alias
+ * find_alias - search alias list by name
  * @name: alias name
  * @head: list head node
- * Return: void
+ * Return: alias if found or NULL
  */
-void print_alias(const char *name, alias_node_t *head)
+alias_t *find_alias(const char *name, alias_node_t *head)
 {
 	while (head != NULL)
 	{
-		if (str_equals(name, head->data->name))
-		{
-			_puts("alias ");
-			_puts(head->data->name);
-			_puts("=");
-			_putc('\'');
-			_puts(head->data->value);
-			_puts("\'\n");
-			break;
-		}
+		if (str_equals(head->data->name, name) == TRUE)
+			return (head->data);
 		head = head->next;
 	}
+	return (NULL);
 }
-

@@ -26,6 +26,7 @@ sh_session_t *create_session(char *argv0, char **envp)
 		for (i = 0; i < len; ++i)
 			session->env_var_lst[i] = copy_str(envp[i]);
 		session->status = 0;
+		session->alias_list = NULL;
 	}
 	return (session);
 }
@@ -57,6 +58,11 @@ void free_session(sh_session_t **session)
 		{
 			free((*session)->alias_file_name);
 			(*session)->alias_file_name = NULL;
+		}
+		if ((*session)->alias_list != NULL)
+		{
+			free_alias_list(&(*session)->alias_list);
+			(*session)->alias_list = NULL;
 		}
 		free_str_list(&(*session)->env_var_lst);
 		free(*session);
