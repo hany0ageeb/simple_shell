@@ -44,6 +44,11 @@ int _cd_home(sh_session_t *session, const char *pwd)
 		ret = 0;
 	else
 		ret = _cd(home, session, pwd);
+	if (home != NULL)
+	{
+		free(home);
+		home = NULL;
+	}
 	return (ret);
 }
 
