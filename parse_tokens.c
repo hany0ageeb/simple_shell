@@ -161,7 +161,7 @@ int parse_tokens(const token_list_t *lst, sh_session_t *session)
 	if (lst == NULL || lst->head == NULL)
 		return (0);
 	start = current = lst->head;
-	while (current != NULL)
+	while (current != NULL && session->exit_request == FALSE)
 	{
 		while (current != NULL &&
 				current->token->type != NEW_LINE &&

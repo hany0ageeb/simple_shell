@@ -16,12 +16,10 @@
  */
 ssize_t _getline(char **lineptr, size_t *n, int fdin)
 {
-	const size_t INITALLOC = 16;
-	const size_t ALLOCSTEP = 16;
-	size_t num_read = 0;
-	size_t new_size;
-	char *tmp;
-	int c;
+	const size_t INITALLOC = 16, ALLOCSTEP = 16;
+	size_t num_read = 0, new_size = 0;
+	char *tmp = NULL;
+	int c = -1;
 
 	if ((lineptr == NULL) || (n == NULL))
 	{
@@ -49,6 +47,8 @@ ssize_t _getline(char **lineptr, size_t *n, int fdin)
 		}
 		(*lineptr)[num_read - 1] = (char)c;
 	}
+	if (c == '\n')
+		(*lineptr)[num_read++] = '\n';
 	(*lineptr)[num_read] = '\0';
 	if (c == -1)
 	{

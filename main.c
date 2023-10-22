@@ -87,6 +87,12 @@ static int run_prompt(sh_session_t *session)
 		while (n_read != -1)
 		{
 			run_result = run(line, session);
+			if (session->exit_request == TRUE)
+			{
+				if (line != NULL)
+					free(line);
+				return (session->status);
+			}
 			_puts(session->prompt);
 			n_read = getline(&line, &n, stdin);
 		}
@@ -102,6 +108,11 @@ static int run_prompt(sh_session_t *session)
 		while (n_read > 0)
 		{
 			run_result = run(line, session);
+			if (session->exit_request == TRUE)
+			{
+				free(line);
+				return (session->status);
+			}
 			n_read = getline(&line, &n, stdin);
 		}
 		if (line != NULL)
@@ -129,18 +140,26 @@ static int run_file(const char *file, sh_session_t *session)
 
 	if (fd == -1)
 	{
-		perror("Open File");
-		return (-1);
+		/**print error message*/
+		_fputs(session->sh_name, STDERR_FILENO);
+		_fputs(": 0: Can't open ", STDERR_FILENO);
+		_fputs(file, STDERR_FILENO);
+		_fputs("\n", STDERR_FILENO);
+		return(127);
 	}
 	while ((n_read = _getline(&line, &n, fd)) != -1)
 	{
 		run_result = run(line, session);
+		if (session->exit_request == TRUE)
+		{
+			close(fd);
+			if (line != NULL)
+				free(line);
+			return (session->status);
+		}
 	}
-	if (line != NULL && errno == 0)
-	{
-		run_result = run(line, session);
+	close(fd);
+	if (line != NULL)
 		free(line);
-	}
 	return (run_result);
 }
-

@@ -84,18 +84,21 @@ int exit_exec(simple_command_t *command, sh_session_t *session)
 	if (command->args != NULL && command->args->head != NULL)
 	{
 		exit_code = str_to_int(command->args->head->token->lexeme);
-		if (exit_code == 0 && errno == EINVAL)
+		if ((exit_code == 0 && errno == EINVAL) || exit_code < 0)
 		{
 			print_exit_error(session, command->args->head);
 			session->status = 2;
+			session->exit_request = FALSE;
 			return (2);
 		}
 		session->status = exit_code;
-		exit(exit_code);
+		session->exit_request = TRUE;
+		return (0);
 	}
 	else
 	{
-		exit(session->status);
+		session->exit_request = TRUE;
+		return (0);
 	}
 }
 /**

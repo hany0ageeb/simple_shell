@@ -19,6 +19,7 @@ sh_session_t *create_session(char *argv0, char **envp)
 		session->prompt = copy_str("cisfun$");
 		session->sh_name = copy_str(argv0);
 		session->alias_file_name = copy_str(".alias");
+		session->exit_request = FALSE;
 		len = str_list_len(envp);
 		session->env_var_lst = malloc(sizeof(char *) * (len + 1));
 		session->env_var_lst[len] = NULL;
