@@ -97,6 +97,8 @@ void search_for_var_value(token_list_t *args,
 			free_token_node(pv);
 			(*pv) = NULL;
 			args->head = NULL;
+			if (var_name != NULL)
+				free(var_name);
 			return;
 		}
 		else
