@@ -20,7 +20,9 @@ int _cd_oldpwd(sh_session_t *session, const char *pwd)
 		ret = 0;
 	else
 		ret = _cd(oldpwd, session, pwd);
-	_puts(oldpwd != NULL ? oldpwd : "\n");
+	if (oldpwd != NULL)
+		_puts(oldpwd);
+	_puts("\n");
 	if (oldpwd != NULL)
 	{
 		free(oldpwd);
