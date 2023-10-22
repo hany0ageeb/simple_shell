@@ -167,7 +167,7 @@ int parse_tokens(const token_list_t *lst, sh_session_t *session)
 				current->token->type != NEW_LINE &&
 				current->token->type != SEMI_COLON)
 			current = current->next;
-		if (current != NULL)
+		if (start != NULL)
 		{
 			command = get_simple_command(start, current, session);
 			if (command != NULL && command->execute != NULL)
@@ -175,7 +175,8 @@ int parse_tokens(const token_list_t *lst, sh_session_t *session)
 				execute_result = command->execute(command, session);
 				free_simple_command(&command);
 			}
-			current = current->next;
+			if (current != NULL)
+				current = current->next;
 			while (current != NULL &&
 					(current->token->type == NEW_LINE || current->token->type == SEMI_COLON))
 				current = current->next;

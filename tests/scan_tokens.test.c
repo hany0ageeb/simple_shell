@@ -21,6 +21,7 @@ static void print_token_list(struct token_list *lst)
 }
 int main(void)
 {
+	const char *src0 = "/bin/echo #This is a comment\n";
 	const char *src = "ls -la test";
 	const char *src2 = "exit 98";
 	const char *src3 = "ls|;";
@@ -32,6 +33,11 @@ int main(void)
 	const char *src9 = "/bin/ls ;\n";
 	struct token_list *lst = NULL;
 
+	if (scan_tokens(src0, &lst, "/bin/sh"))
+	{
+		printf("==>src = %s\n", src0);
+		print_token_list(lst);
+	}
 	if (scan_tokens(src, &lst, "/bin/sh"))
 	{
 		printf("==>src = %s\n", src);
