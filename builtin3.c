@@ -1,5 +1,6 @@
 #include "builtin.h"
 #include "env.h"
+#include "io.h"
 #include <stdlib.h>
 /**
  * _cd_oldpwd - cd to oldpwd
@@ -19,6 +20,11 @@ int _cd_oldpwd(sh_session_t *session, const char *pwd)
 		ret = 0;
 	else
 		ret = _cd(oldpwd, session, pwd);
+	if (ret == 0)
+	{
+		_puts(oldpwd);
+		_putc('\n');
+	}
 	if (oldpwd != NULL)
 	{
 		free(oldpwd);
