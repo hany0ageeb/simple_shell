@@ -1,6 +1,7 @@
 #include "builtin.h"
 #include "env.h"
 #include "io.h"
+#include "string.h"
 #include <stdlib.h>
 /**
  * _cd_oldpwd - cd to oldpwd
@@ -55,4 +56,23 @@ int _cd_home(sh_session_t *session, const char *pwd)
 	}
 	return (ret);
 }
+/**
+ * print_all_alias - print a list of alias
+ * @head: head node
+ */
+void print_all_alias(alias_node_t *head)
+{
+	char *msg = NULL;
 
+	while (head != NULL)
+	{
+		msg = concat_strs(4, head->data->name, "='", head->data->value, "'\n");
+		_puts(msg);
+		if (msg != NULL)
+		{
+			free(msg);
+			msg = NULL;
+		}
+		head = head->next;
+	}
+}

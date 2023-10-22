@@ -40,6 +40,7 @@ void replace_alias(token_t *cmd_token, sh_session_t *session);
 int parse_tokens(const token_list_t *lst, sh_session_t *session);
 char **get_paths(char **envp);
 char *find_full_path(char *cmd, char **paths);
+void print_all_alias(alias_node_t *head);
 void load_alias(sh_session_t *session);
 void unload_alias(sh_session_t *session);
 #endif

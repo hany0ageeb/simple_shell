@@ -57,7 +57,6 @@ bool_t is_builtin_cmd(const char *lex)
  */
 int alias_exec(simple_command_t *command, sh_session_t *session)
 {
-	alias_node_t *v = session != NULL ? session->alias_list : NULL;
 	token_node_t *tok_node = NULL;
 	alias_t *al = NULL;
 	int index = -1;
@@ -66,20 +65,14 @@ int alias_exec(simple_command_t *command, sh_session_t *session)
 	/**alias without arg**/
 	if (command->args == NULL || command->args->head == NULL)
 	{
-		while (v != NULL)
-		{
-			alias = concat_strs(4, v->data->name, "='", v->data->value, "'\n");
-			_puts(alias);
-			free(alias);
-			v = v->next;
-		}
+		print_all_alias(session->alias_list);
 		return (0);
 	}
 	tok_node = command->args->head;
 	while (tok_node != NULL)
 	{
 		len = str_len(tok_node->token->lexeme);
-		index = index_of(tok_node->token->lexeme, 0 , len - 1, '=');
+		index = index_of(tok_node->token->lexeme, 0, len - 1, '=');
 		if (index >= 0)
 		{
 			name = sub_str(tok_node->token->lexeme, 0, index - 1);
