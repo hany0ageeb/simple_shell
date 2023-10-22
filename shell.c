@@ -87,7 +87,7 @@ void unload_alias(sh_session_t *session)
 		v = session->alias_list;
 		while (v != NULL)
 		{
-			alias = concat_strs(3, v->data->name, "=", v->data->value, "\n");
+			alias = concat_strs(4, v->data->name, "=", v->data->value, "\n");
 			_fputs(alias, fd);
 			if (alias != NULL)
 			{

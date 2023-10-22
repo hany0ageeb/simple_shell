@@ -7,6 +7,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
 /**
  * print_cd_error - print cd error

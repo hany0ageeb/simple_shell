@@ -46,7 +46,7 @@ alias_node_t *add_to_alias_list(alias_node_t **head, alias_t *a)
 alias_node_t *add_or_update_alias_list(alias_node_t **head,
 		char *name, char *value)
 {
-	alias_node_t *v;
+	alias_t *al = NULL;
 
 	if (IS_NULL_OR_EMPTY(name))
 		return (NULL);
@@ -56,18 +56,19 @@ alias_node_t *add_or_update_alias_list(alias_node_t **head,
 	}
 	else
 	{
-		v = *head;
-		do {
-			if (str_equals(v->data->name, name))
-			{
-				if (v->data->value != NULL)
-					free(v->data->value);
-				v->data->value = value;
-				return (v);
-			}
-		} while (v != NULL);
-		return (add_to_alias_list(head, create_alias(name, value)));
+		al = find_alias(name, *head);
+		if (al == NULL)
+			return (add_to_alias_list(head, create_alias(name, value)));
+		else
+		{
+			if (al->value != NULL)
+				free(al->value);
+			al->value = value;
+			if (name != NULL)
+				free(name);
+		}
 	}
+	return (NULL);
 }
 /**
  * free_alias_list - free list memory

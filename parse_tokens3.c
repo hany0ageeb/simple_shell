@@ -130,16 +130,11 @@ void replace_alias(token_t *cmd_token, sh_session_t *session)
 	if (a != NULL)
 	{
 		free(cmd_token->lexeme);
-		b = find_alias(cmd_token->lexeme, session->alias_list);
+		b = find_alias(a->value, session->alias_list);
 		if (b != NULL)
-		{
 			cmd_token->lexeme = copy_str(b->value);
-		}
 		else
-		{
 			cmd_token->lexeme = copy_str(a->value);
-		}
-		cmd_token->lexeme = a->value;
 	}
 }
 
