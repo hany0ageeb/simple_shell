@@ -119,7 +119,6 @@ void search_for_var_value(token_list_t *args,
  * replace_variables - replace vars
  * @args: arguments list
  * @session: session
- * @cmd_token: command token
  * Return: void
  */
 void replace_variables(token_list_t *args,

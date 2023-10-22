@@ -9,11 +9,13 @@
 /**
  * print_not_found_err - print no such file to stderr
  * @prog: shell name
+ * @cmd: command token
  * Return: void
  */
 void print_not_found_err(const char *prog, const token_t *cmd)
 {
 	char *msg = NULL, *ln = NULL;
+
 	ln = int_to_str(cmd->line);
 	msg = concat_strs(6, prog, ": ", ln, ": ", cmd->lexeme, ": not found\n");
 	if (msg != NULL)
