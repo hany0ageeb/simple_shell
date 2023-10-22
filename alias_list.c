@@ -59,14 +59,11 @@ alias_node_t *add_or_update_alias_list(alias_node_t **head,
 		al = find_alias(name, *head);
 		if (al == NULL)
 			return (add_to_alias_list(head, create_alias(name, value)));
-		else
-		{
-			if (al->value != NULL)
-				free(al->value);
-			al->value = value;
-			if (name != NULL)
-				free(name);
-		}
+		if (al->value != NULL)
+			free(al->value);
+		al->value = value;
+		if (name != NULL)
+			free(name);
 	}
 	return (NULL);
 }
